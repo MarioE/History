@@ -21,7 +21,7 @@ namespace History
     {
         public static DateTime Date = DateTime.UtcNow;
         public delegate void HistoryD(HistoryArgs e);
-        public const int SaveCount = 10;
+        public const int SaveCount = 10000;
 
         private List<Action> Actions = new List<Action>();
         private bool[] AwaitingHistory = new bool[256];
@@ -114,7 +114,7 @@ namespace History
             NetHooks.GetData += OnGetData;
             WorldHooks.SaveWorld += OnSaveWorld;
         }
-        void Queue(string account, int X, int Y, byte type, byte data = 0)
+        void Queue(string account, int X, int Y, byte action, byte data = 0)
         {
             if (Actions.Count == SaveCount)
             {
@@ -122,7 +122,7 @@ namespace History
                 CommandQueue.Enqueue(SaveCallback);
                 Actions.Clear();
             }
-            Actions.Add(new Action { account = account, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, type = type, x = X, y = Y });
+            Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y });
         }
         void SaveActions(Action[] actions)
         {
@@ -135,21 +135,20 @@ namespace History
                     {
                         using (SqliteCommand command = (SqliteCommand)db.CreateCommand())
                         {
-                            command.CommandText = "INSERT INTO History (Time, Account, Type, X, Y, Data, WorldID) VALUES (@0, @1, @2, @3, @4, @5, @6)";
-                            for (int i = 0; i < 7; i++)
+                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, WorldID) VALUES (@0, @1, @2, @3, @4, @5)";
+                            for (int i = 0; i < 6; i++)
                             {
                                 command.AddParameter("@" + i, null);
                             }
-                            command.Parameters[6].Value = Main.worldID;
+                            command.Parameters[5].Value = Main.worldID;
 
-                            foreach (Action action in actions)
+                            foreach (Action a in actions)
                             {
-                                command.Parameters[0].Value = action.time;
-                                command.Parameters[1].Value = action.account;
-                                command.Parameters[2].Value = action.type;
-                                command.Parameters[3].Value = action.x;
-                                command.Parameters[4].Value = action.y;
-                                command.Parameters[5].Value = action.data;
+                                command.Parameters[0].Value = a.time;
+                                command.Parameters[1].Value = a.account;
+                                command.Parameters[2].Value = a.action;
+                                command.Parameters[3].Value = (a.x << 16) + a.y;
+                                command.Parameters[4].Value = a.data;
                                 command.ExecuteNonQuery();
                             }
                         }
@@ -166,21 +165,20 @@ namespace History
                     {
                         using (MySqlCommand command = (MySqlCommand)db.CreateCommand())
                         {
-                            command.CommandText = "INSERT INTO History (Time, Account, Type, X, Y, Data, WorldID) VALUES (@0, @1, @2, @3, @4, @5, @6)";
-                            for (int i = 0; i < 7; i++)
+                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, WorldID) VALUES (@0, @1, @2, @3, @4, @5)";
+                            for (int i = 0; i < 6; i++)
                             {
                                 command.AddParameter("@" + i, null);
                             }
-                            command.Parameters[6].Value = Main.worldID;
+                            command.Parameters[5].Value = Main.worldID;
 
-                            foreach (Action action in actions)
+                            foreach (Action a in actions)
                             {
-                                command.Parameters[0].Value = action.time;
-                                command.Parameters[1].Value = action.account;
-                                command.Parameters[2].Value = action.type;
-                                command.Parameters[3].Value = action.x;
-                                command.Parameters[4].Value = action.y;
-                                command.Parameters[5].Value = action.data;
+                                command.Parameters[0].Value = a.time;
+                                command.Parameters[1].Value = a.account;
+                                command.Parameters[2].Value = a.action;
+                                command.Parameters[3].Value = (a.x << 16) + a.y;
+                                command.Parameters[4].Value = a.data;
                                 command.ExecuteNonQuery();
                             }
                         }
@@ -197,57 +195,60 @@ namespace History
                 int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
                 int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
 
-                if (AwaitingHistory[e.Msg.whoAmI])
+                if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
                 {
-                    AwaitingHistory[e.Msg.whoAmI] = false;
-                    TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-                    CommandQueue.Enqueue(GetHistoryCallback);
-                    CommandArgsQueue.Enqueue(new HistoryArgs { player = TShock.Players[e.Msg.whoAmI], x = X, y = Y });
-                    e.Handled = true;
-                }
-                else if (TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]))
-                {
-                    string account = TShock.Players[e.Msg.whoAmI].UserAccountName;
-                    switch (e.Msg.readBuffer[e.Index])
+                    if (AwaitingHistory[e.Msg.whoAmI])
                     {
-                        case 0:
-                        case 4:
-                            if (!Main.tileCut[Main.tile[X, Y].type] && Main.tile[X, Y].type != 127 &&
-                                Main.tile[X, Y].active && e.Msg.readBuffer[e.Index + 9] == 0)
-                            {
-                                Queue(account, X, Y, 0, Main.tile[X, Y].type);
-                            }
-                            break;
-                        case 1:
-                            if ((!Main.tile[X, Y].active || Main.tileCut[Main.tile[X, Y].type]) && e.Msg.readBuffer[e.Index + 9] != 127)
-                            {
-                                Queue(account, X, Y, 1, e.Msg.readBuffer[e.Index + 9]);
-                            }
-                            break;
-                        case 2:
-                            if (Main.tile[X, Y].wall != 0)
-                            {
-                                Queue(account, X, Y, 2, Main.tile[X, Y].wall);
-                            }
-                            break;
-                        case 3:
-                            if (Main.tile[X, Y].wall == 0)
-                            {
-                                Queue(account, X, Y, 3, e.Msg.readBuffer[e.Index + 9]);
-                            }
-                            break;
-                        case 5:
-                            if (Main.tile[X, Y].wire)
-                            {
-                                Queue(account, X, Y, 5);
-                            }
-                            break;
-                        case 6:
-                            if (!Main.tile[X, Y].wire)
-                            {
-                                Queue(account, X, Y, 6);
-                            }
-                            break;
+                        AwaitingHistory[e.Msg.whoAmI] = false;
+                        TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
+                        CommandQueue.Enqueue(GetHistoryCallback);
+                        CommandArgsQueue.Enqueue(new HistoryArgs { player = TShock.Players[e.Msg.whoAmI], x = X, y = Y });
+                        e.Handled = true;
+                    }
+                    else if (TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]))
+                    {
+                        string account = TShock.Players[e.Msg.whoAmI].UserAccountName;
+                        switch (e.Msg.readBuffer[e.Index])
+                        {
+                            case 0:
+                            case 4:
+                                if (!Main.tileCut[Main.tile[X, Y].type] && Main.tile[X, Y].type != 127 &&
+                                    Main.tile[X, Y].active && e.Msg.readBuffer[e.Index + 9] == 0)
+                                {
+                                    Queue(account, X, Y, 0, Main.tile[X, Y].type);
+                                }
+                                break;
+                            case 1:
+                                if ((!Main.tile[X, Y].active || Main.tileCut[Main.tile[X, Y].type]) && e.Msg.readBuffer[e.Index + 9] != 127)
+                                {
+                                    Queue(account, X, Y, 1, e.Msg.readBuffer[e.Index + 9]);
+                                }
+                                break;
+                            case 2:
+                                if (Main.tile[X, Y].wall != 0)
+                                {
+                                    Queue(account, X, Y, 2, Main.tile[X, Y].wall);
+                                }
+                                break;
+                            case 3:
+                                if (Main.tile[X, Y].wall == 0)
+                                {
+                                    Queue(account, X, Y, 3, e.Msg.readBuffer[e.Index + 9]);
+                                }
+                                break;
+                            case 5:
+                                if (Main.tile[X, Y].wire)
+                                {
+                                    Queue(account, X, Y, 5);
+                                }
+                                break;
+                            case 6:
+                                if (!Main.tile[X, Y].wire)
+                                {
+                                    Queue(account, X, Y, 6);
+                                }
+                                break;
+                        }
                     }
                 }
             }
@@ -282,9 +283,8 @@ namespace History
             sqlcreator.EnsureExists(new SqlTable("History",
                 new SqlColumn("Time", MySqlDbType.Int32),
                 new SqlColumn("Account", MySqlDbType.Text),
-                new SqlColumn("Type", MySqlDbType.Int32),
-                new SqlColumn("X", MySqlDbType.Int32),
-                new SqlColumn("Y", MySqlDbType.Int32),
+                new SqlColumn("Action", MySqlDbType.Int32),
+                new SqlColumn("XY", MySqlDbType.Int32),
                 new SqlColumn("Data", MySqlDbType.Int32),
                 new SqlColumn("WorldID", MySqlDbType.Int32)));
 
@@ -329,24 +329,24 @@ namespace History
             e.player.SendMessage("Tile history (" + e.x + ", " + e.y + "):", Color.Green);
 
             using (QueryResult reader =
-                Database.QueryReader("SELECT Account, Data, Time, Type FROM History WHERE X = @0 AND Y = @1 AND WorldID = @2",
-                e.x, e.y, Main.worldID))
+                Database.QueryReader("SELECT Account, Action, Data, Time FROM History WHERE XY = @0 AND WorldID = @1",
+                (e.x << 16) + e.y, Main.worldID))
             {
                 while (reader.Read())
                 {
                     actions.Add(new Action
                     {
                         account = reader.Get<string>("Account"),
+                        action = (byte)reader.Get<int>("Action"),
                         data = (byte)reader.Get<int>("Data"),
-                        time = reader.Get<int>("Time"),
-                        type = (byte)reader.Get<int>("Type")
+                        time = reader.Get<int>("Time")
                     });
                 }
             }
 
-            actions.AddRange(from action in Actions
-                             where action.x == e.x && action.y == e.y
-                             select action);
+            actions.AddRange(from a in Actions
+                             where a.x == e.x && a.y == e.y
+                             select a);
             foreach (Action a in actions)
             {
                 e.player.SendMessage(a.ToString(), Color.Yellow);
@@ -373,20 +373,20 @@ namespace History
             int highX = plrX + args.radius;
             int lowY = plrY - args.radius;
             int highY = plrY + args.radius;
-            string XYReq = string.Format("X BETWEEN {0} AND {1} AND Y BETWEEN {2} AND {3}", lowX, highX, lowY, highY);
+            string XYReq = string.Format("XY / 65536 BETWEEN {0} AND {1} AND XY & 65535 BETWEEN {2} AND {3}", lowX, highX, lowY, highY);
 
             using (QueryResult reader =
-                Database.QueryReader("SELECT Data, Type, X, Y FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
+                Database.QueryReader("SELECT Action, Data, XY FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
                 args.account, rollbackTime, Main.worldID))
             {
                 while (reader.Read())
                 {
                     actions.Add(new Action
                     {
+                        action = (byte)reader.Get<int>("Action"),
                         data = (byte)reader.Get<int>("Data"),
-                        type = (byte)reader.Get<int>("Type"),
-                        x = reader.Get<int>("X"),
-                        y = reader.Get<int>("Y")
+                        x = reader.Get<int>("XY") >> 16,
+                        y = reader.Get<int>("XY") & 0xffff
                     });
                 }
             }

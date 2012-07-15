@@ -8,15 +8,15 @@ namespace History
     public class Action
     {
         public string account;
+        public byte action;
         public byte data;
         public int time;
-        public byte type;
         public int x;
         public int y;
 
         public void Rollback()
         {
-            switch (type)
+            switch (action)
             {
                 case 0:
                 case 4:
@@ -87,7 +87,7 @@ namespace History
                 date.Append(span.Seconds + " second(s) ");
             }
 
-            switch (type)
+            switch (action)
             {
                 case 0:
                 case 4:
