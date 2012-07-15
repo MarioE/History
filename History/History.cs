@@ -23,13 +23,13 @@ namespace History
         public delegate void HistoryD(HistoryArgs e);
         public const int SaveCount = 10000;
 
-        private List<Action> Actions = new List<Action>();
+        private List<Action> Actions = new List<Action>(SaveCount);
         private bool[] AwaitingHistory = new bool[256];
         public override string Author
         {
             get { return "MarioE"; }
         }
-        private Queue<HistoryArgs> CommandArgsQueue = new Queue<HistoryArgs>(SaveCount);
+        private Queue<HistoryArgs> CommandArgsQueue = new Queue<HistoryArgs>();
         private Queue<HistoryD> CommandQueue = new Queue<HistoryD>();
         private IDbConnection Database;
         public override string Description
