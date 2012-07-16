@@ -21,7 +21,7 @@ namespace History
     {
         public static DateTime Date = DateTime.UtcNow;
         public delegate void HistoryD(HistoryArgs e);
-        public const int SaveCount = 10000;
+        public const int SaveCount = 10;
 
         private List<Action> Actions = new List<Action>(SaveCount);
         private bool[] AwaitingHistory = new bool[256];
@@ -257,6 +257,7 @@ namespace History
         {
             Commands.ChatCommands.Add(new Command("history", HistoryCmd, "history"));
             Commands.ChatCommands.Add(new Command("maintenance", Prune, "prunehist"));
+            Commands.ChatCommands.Add(new Command("reenact", Reenact, "reenact"));
             Commands.ChatCommands.Add(new Command("rollback", Rollback, "rollback"));
 
             switch (TShock.Config.StorageType.ToLower())
@@ -362,6 +363,52 @@ namespace History
             Database.Query("DELETE FROM History WHERE Time < @0 AND WorldID = @1", time, Main.worldID);
             args.player.SendMessage("Pruned history.");
         }
+        void ReenactCallback(HistoryArgs args)
+        {
+            List<Action> actions = new List<Action>();
+            int reenactTime = (int)(DateTime.UtcNow - Date).TotalSeconds - args.time;
+
+            int plrX = (int)args.player.TPlayer.position.X / 16;
+            int plrY = (int)args.player.TPlayer.position.Y / 16 + 1;
+            int lowX = plrX - args.radius;
+            int highX = plrX + args.radius;
+            int lowY = plrY - args.radius;
+            int highY = plrY + args.radius;
+            string XYReq = string.Format("XY / 65536 BETWEEN {0} AND {1} AND XY & 65535 BETWEEN {2} AND {3}", lowX, highX, lowY, highY);
+
+            using (QueryResult reader =
+                Database.QueryReader("SELECT Action, Data, XY FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
+                args.account, reenactTime, Main.worldID))
+            {
+                while (reader.Read())
+                {
+                    actions.Add(new Action
+                    {
+                        action = (byte)reader.Get<int>("Action"),
+                        data = (byte)reader.Get<int>("Data"),
+                        x = reader.Get<int>("XY") >> 16,
+                        y = reader.Get<int>("XY") & 0xffff
+                    });
+                }
+            }
+
+            for (int i = Actions.Count - 1; i >= 0; i--)
+            {
+                Action action = Actions[i];
+                if (action.account == args.account && action.time >= reenactTime &&
+                    lowX <= action.x && lowY <= action.y && action.x <= highX && action.y <= highY)
+                {
+                    actions.Add(action);
+                    Actions.RemoveAt(i);
+                }
+            }
+            foreach (Action action in actions)
+            {
+                action.Reenact();
+            }
+
+            args.player.SendMessage("Reenacted " + actions.Count + " action" + (actions.Count == 1 ? "" : "s") + ".", Color.Green);
+        }
         void RollbackCallback(HistoryArgs args)
         {
             List<Action> actions = new List<Action>();
@@ -419,6 +466,29 @@ namespace History
         {
             e.Player.SendMessage("Hit a block to get its history.", Color.LimeGreen);
             AwaitingHistory[e.Player.Index] = true;
+        }
+        void Reenact(CommandArgs e)
+        {
+            if (e.Parameters.Count != 2 && e.Parameters.Count != 3)
+            {
+                e.Player.SendMessage("Invalid syntax! Proper syntax: /reenact <account> <time> [radius]", Color.Red);
+                return;
+            }
+            int radius = 10000;
+            int time;
+            if (!GetTime(e.Parameters[1], out time) || time <= 0)
+            {
+                e.Player.SendMessage("Invalid time.", Color.Red);
+            }
+            else if (e.Parameters.Count == 3 && (!int.TryParse(e.Parameters[2], out radius) || radius <= 0))
+            {
+                e.Player.SendMessage("Invalid radius.", Color.Red);
+            }
+            else
+            {
+                CommandQueue.Enqueue(ReenactCallback);
+                CommandArgsQueue.Enqueue(new HistoryArgs { account = e.Parameters[0], player = e.Player, radius = radius, time = time });
+            }
         }
         void Rollback(CommandArgs e)
         {

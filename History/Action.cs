@@ -14,6 +14,57 @@ namespace History
         public int x;
         public int y;
 
+        public void Reenact()
+        {
+            switch (action)
+            {
+                case 0:
+                case 4:
+                    if (Main.tile[x, y].active)
+                    {
+                        Main.tile[x, y].active = false;
+                        Main.tile[x, y].type = 0;
+                        TSPlayer.All.SendTileSquare(x, y, 1);
+                    }
+                    break;
+                case 1:
+                    if (!Main.tile[x, y].active)
+                    {
+                        Main.tile[x, y].active = true;
+                        Main.tile[x, y].type = data;
+                        TSPlayer.All.SendTileSquare(x, y, 1);
+                    }
+                    break;
+                case 2:
+                    if (Main.tile[x, y].wall != 0)
+                    {
+                        Main.tile[x, y].wall = 0;
+                        TSPlayer.All.SendTileSquare(x, y, 1);
+                    }
+                    break;
+                case 3:
+                    if (Main.tile[x, y].wall == 0)
+                    {
+                        Main.tile[x, y].wall = data;
+                        TSPlayer.All.SendTileSquare(x, y, 1);
+                    }
+                    break;
+                case 5:
+                    if (Main.tile[x, y].wire)
+                    {
+                        Main.tile[x, y].wire = false;
+                        TSPlayer.All.SendTileSquare(x, y, 1);
+                    }
+                    break;
+                case 6:
+                    if (!Main.tile[x, y].wire)
+                    {
+                        Main.tile[x, y].wire = true;
+                        TSPlayer.All.SendTileSquare(x, y, 1);
+                    }
+                    break;
+            }
+        }
         public void Rollback()
         {
             switch (action)
