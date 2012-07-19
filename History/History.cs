@@ -213,7 +213,7 @@ namespace History
                             case 0:
                             case 4:
                                 if (!Main.tileCut[Main.tile[X, Y].type] && Main.tile[X, Y].type != 127 &&
-                                    Main.tile[X, Y].active && e.Msg.readBuffer[e.Index + 9] == 0)
+                                    Main.tile[X, Y].active && e.Msg.readBuffer[e.Index + 9] == 0 && !Main.tileFrameImportant[Main.tile[X, Y].type])
                                 {
                                     Queue(account, X, Y, 0, Main.tile[X, Y].type);
                                 }

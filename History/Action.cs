@@ -22,17 +22,15 @@ namespace History
                 case 4:
                     if (Main.tile[x, y].active)
                     {
-                        Main.tile[x, y].active = false;
-                        Main.tile[x, y].type = 0;
+                        WorldGen.KillTile(x, y, false, false, true);
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
                 case 1:
                     if (!Main.tile[x, y].active)
                     {
-                        Main.tile[x, y].active = true;
-                        Main.tile[x, y].type = data;
-                        TSPlayer.All.SendTileSquare(x, y, 1);
+                        WorldGen.PlaceTile(x, y, data);
+                        TSPlayer.All.SendTileSquare(x, y, 3);
                     }
                     break;
                 case 2:
@@ -73,16 +71,14 @@ namespace History
                 case 4:
                     if (!Main.tile[x, y].active)
                     {
-                        Main.tile[x, y].active = true;
-                        Main.tile[x, y].type = data;
-                        TSPlayer.All.SendTileSquare(x, y, 1);
+                        WorldGen.PlaceTile(x, y, data);
+                        TSPlayer.All.SendTileSquare(x, y, 3);
                     }
                     break;
                 case 1:
                     if (Main.tile[x, y].active)
                     {
-                        Main.tile[x, y].active = false;
-                        Main.tile[x, y].type = 0;
+                        WorldGen.KillTile(x, y, false, false, true);
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
