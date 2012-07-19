@@ -118,41 +118,45 @@ namespace History
         }
         public override string ToString()
         {
-            StringBuilder date = new StringBuilder();
-            TimeSpan span = DateTime.UtcNow - History.Date.AddSeconds(time);
+            DateTime dateTime = History.Date.AddSeconds(time);
+            string date = string.Format("{0}-{1} @ {3}:{4}:{5} (UTC):",
+                dateTime.Month, dateTime.Day, dateTime.Year,
+                dateTime.Hour, dateTime.Minute.ToString("00"), dateTime.Second.ToString("00"));
 
-            if (span.Days > 0)
+            TimeSpan timeDiff = DateTime.UtcNow - dateTime;
+            StringBuilder dhms = new StringBuilder();
+            if (timeDiff.Days != 0)
             {
-                date.Append(span.Days + " day(s) ");
+                dhms.Append(timeDiff.Days + "d");
             }
-            if (span.Hours > 0)
+            if (timeDiff.Hours != 0)
             {
-                date.Append(span.Hours + " hour(s) ");
+                dhms.Append(timeDiff.Hours + "h");
             }
-            if (span.Minutes > 0)
+            if (timeDiff.Minutes != 0)
             {
-                date.Append(span.Minutes + " minute(s) ");
+                dhms.Append(timeDiff.Minutes + "m");
             }
-            if (span.Seconds > 0)
+            if (timeDiff.Seconds != 0)
             {
-                date.Append(span.Seconds + " second(s) ");
+                dhms.Append(timeDiff.Seconds + "s");
             }
 
             switch (action)
             {
                 case 0:
                 case 4:
-                    return string.Format("{0} broke tile {1} {2}ago.", account, data, date);
+                    return string.Format("{0} {1} broke tile {2}. ({3})", date, account, data, dhms);
                 case 1:
-                    return string.Format("{0} placed tile {1} {2}ago.", account, data, date);
+                    return string.Format("{0} {1} placed tile {2}. ({3})", date, account, data, dhms);
                 case 2:
-                    return string.Format("{0} broke wall {1} {2}ago.", account, data, date);
+                    return string.Format("{0} {1} broke wall {2}. ({3})", date, account, data, dhms);
                 case 3:
-                    return string.Format("{0} placed wall {1} {2}ago.", account, data, date);
+                    return string.Format("{0} {1} placed wall {2}. ({3})", date, account, data, dhms);
                 case 5:
-                    return string.Format("{0} broke wire {1}ago.", account, date);
+                    return string.Format("{0} {1} broke wire. ({2})", date, account, dhms);
                 case 6:
-                    return string.Format("{0} placed wire {1}ago.", account, date);
+                    return string.Format("{0} {1} placed wire. ({2})", date, account, dhms);
                 default:
                     return "";
             }

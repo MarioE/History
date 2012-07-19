@@ -257,7 +257,7 @@ namespace History
         {
             Commands.ChatCommands.Add(new Command("history", HistoryCmd, "history"));
             Commands.ChatCommands.Add(new Command("maintenance", Prune, "prunehist"));
-            Commands.ChatCommands.Add(new Command("reenact", Reenact, "reenact"));
+            Commands.ChatCommands.Add(new Command("rollback", Reenact, "reenact"));
             Commands.ChatCommands.Add(new Command("rollback", Rollback, "rollback"));
 
             switch (TShock.Config.StorageType.ToLower())
@@ -361,7 +361,8 @@ namespace History
         {
             int time = (int)(DateTime.UtcNow - Date).TotalSeconds - args.time;
             Database.Query("DELETE FROM History WHERE Time < @0 AND WorldID = @1", time, Main.worldID);
-            args.player.SendMessage("Pruned history.");
+            Actions.RemoveAll(a => a.time < time);
+            args.player.SendMessage("Pruned history.", Color.Green);
         }
         void ReenactCallback(HistoryArgs args)
         {
