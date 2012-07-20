@@ -219,7 +219,8 @@ namespace History
                                 }
                                 break;
                             case 1:
-                                if ((!Main.tile[X, Y].active || Main.tileCut[Main.tile[X, Y].type]) && e.Msg.readBuffer[e.Index + 9] != 127)
+                                if ((!Main.tile[X, Y].active || Main.tileCut[Main.tile[X, Y].type]) && e.Msg.readBuffer[e.Index + 9] != 127
+                                    && !Main.tileFrameImportant[e.Msg.readBuffer[e.Index + 9]])
                                 {
                                     Queue(account, X, Y, 1, e.Msg.readBuffer[e.Index + 9]);
                                 }
