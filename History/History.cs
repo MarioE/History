@@ -21,7 +21,7 @@ namespace History
     {
         public static DateTime Date = DateTime.UtcNow;
         public delegate void HistoryD(HistoryArgs e);
-        public const int SaveCount = 10;
+        public const int SaveCount = 10000;
 
         private List<Action> Actions = new List<Action>(SaveCount);
         private bool[] AwaitingHistory = new bool[256];
