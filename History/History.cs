@@ -321,8 +321,19 @@ namespace History
             {
                 if (CommandArgsQueue.Count != 0 && CommandQueue.Count != 0)
                 {
-                    CommandQueue.Dequeue().Invoke(CommandArgsQueue.Dequeue());
+                    HistoryArgs args;
+                    HistoryD command;
+                    lock (CommandQueue)
+                    {
+                        command = CommandQueue.Dequeue();
+                    }
+                    lock (CommandArgsQueue)
+                    {
+                        args = CommandArgsQueue.Dequeue();
+                    }
+                    command(args);
                 }
+                Thread.Sleep(100);
             }
         }
         void GetHistoryCallback(HistoryArgs e)
