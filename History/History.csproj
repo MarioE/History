@@ -58,8 +58,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Action.cs" />
+    <Compile Include="Commands\HCommand.cs" />
+    <Compile Include="Commands\HistoryCommand.cs" />
+    <Compile Include="Commands\PruneCommand.cs" />
+    <Compile Include="Commands\RollbackCommand.cs" />
+    <Compile Include="Commands\SaveCommand.cs" />
     <Compile Include="History.cs" />
-    <Compile Include="HistoryArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

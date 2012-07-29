@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using History.Commands;
 using Hooks;
 using Mono.Data.Sqlite;
 using MySql.Data.MySqlClient;
@@ -19,19 +21,18 @@ namespace History
     [APIVersion(1, 12)]
     public class History : TerrariaPlugin
     {
+        public static List<Action> Actions = new List<Action>(SaveCount);
+        public static IDbConnection Database;
         public static DateTime Date = DateTime.UtcNow;
-        public delegate void HistoryD(HistoryArgs e);
-        public const int SaveCount = 10000;
+        public const int SaveCount = 10;
 
-        private List<Action> Actions = new List<Action>(SaveCount);
         private bool[] AwaitingHistory = new bool[256];
         public override string Author
         {
             get { return "MarioE"; }
         }
-        private Queue<HistoryArgs> CommandArgsQueue = new Queue<HistoryArgs>();
-        private Queue<HistoryD> CommandQueue = new Queue<HistoryD>();
-        private IDbConnection Database;
+        private BlockingCollection<HCommand> CommandQueue = new BlockingCollection<HCommand>();
+        private Thread CommandQueueThread;
         public override string Description
         {
             get { return "Logs actions such as tile editing."; }
@@ -118,74 +119,10 @@ namespace History
         {
             if (Actions.Count == SaveCount)
             {
-                CommandArgsQueue.Enqueue(new HistoryArgs { actions = Actions.ToArray() });
-                CommandQueue.Enqueue(SaveCallback);
+                CommandQueue.Add(new SaveCommand(Actions.ToArray()));
                 Actions.Clear();
             }
             Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y });
-        }
-        void SaveActions(Action[] actions)
-        {
-            if (TShock.DB.GetSqlType() == SqlType.Sqlite)
-            {
-                using (IDbConnection db = Database.CloneEx())
-                {
-                    db.Open();
-                    using (SqliteTransaction transaction = (SqliteTransaction)db.BeginTransaction())
-                    {
-                        using (SqliteCommand command = (SqliteCommand)db.CreateCommand())
-                        {
-                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, WorldID) VALUES (@0, @1, @2, @3, @4, @5)";
-                            for (int i = 0; i < 6; i++)
-                            {
-                                command.AddParameter("@" + i, null);
-                            }
-                            command.Parameters[5].Value = Main.worldID;
-
-                            foreach (Action a in actions)
-                            {
-                                command.Parameters[0].Value = a.time;
-                                command.Parameters[1].Value = a.account;
-                                command.Parameters[2].Value = a.action;
-                                command.Parameters[3].Value = (a.x << 16) + a.y;
-                                command.Parameters[4].Value = a.data;
-                                command.ExecuteNonQuery();
-                            }
-                        }
-                        transaction.Commit();
-                    }
-                }
-            }
-            else
-            {
-                using (IDbConnection db = Database.CloneEx())
-                {
-                    db.Open();
-                    using (MySqlTransaction transaction = (MySqlTransaction)db.BeginTransaction())
-                    {
-                        using (MySqlCommand command = (MySqlCommand)db.CreateCommand())
-                        {
-                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, WorldID) VALUES (@0, @1, @2, @3, @4, @5)";
-                            for (int i = 0; i < 6; i++)
-                            {
-                                command.AddParameter("@" + i, null);
-                            }
-                            command.Parameters[5].Value = Main.worldID;
-
-                            foreach (Action a in actions)
-                            {
-                                command.Parameters[0].Value = a.time;
-                                command.Parameters[1].Value = a.account;
-                                command.Parameters[2].Value = a.action;
-                                command.Parameters[3].Value = (a.x << 16) + a.y;
-                                command.Parameters[4].Value = a.data;
-                                command.ExecuteNonQuery();
-                            }
-                        }
-                        transaction.Commit();
-                    }
-                }
-            }
         }
 
         void OnGetData(GetDataEventArgs e)
@@ -201,8 +138,7 @@ namespace History
                     {
                         AwaitingHistory[e.Msg.whoAmI] = false;
                         TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-                        CommandQueue.Enqueue(GetHistoryCallback);
-                        CommandArgsQueue.Enqueue(new HistoryArgs { player = TShock.Players[e.Msg.whoAmI], x = X, y = Y });
+                        CommandQueue.Add(new HistoryCommand(X, Y, e.Msg.whoAmI));
                         e.Handled = true;
                     }
                     else if (TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]))
@@ -256,10 +192,10 @@ namespace History
         }
         void OnInitialize()
         {
-            Commands.ChatCommands.Add(new Command("history", HistoryCmd, "history"));
-            Commands.ChatCommands.Add(new Command("maintenance", Prune, "prunehist"));
-            Commands.ChatCommands.Add(new Command("rollback", Reenact, "reenact"));
-            Commands.ChatCommands.Add(new Command("rollback", Rollback, "rollback"));
+            TShockAPI.Commands.ChatCommands.Add(new Command("history", HistoryCmd, "history"));
+            TShockAPI.Commands.ChatCommands.Add(new Command("maintenance", Prune, "prunehist"));
+            TShockAPI.Commands.ChatCommands.Add(new Command("rollback", Reenact, "reenact"));
+            TShockAPI.Commands.ChatCommands.Add(new Command("rollback", Rollback, "rollback"));
 
             switch (TShock.Config.StorageType.ToLower())
             {
@@ -303,15 +239,16 @@ namespace History
                     File.WriteAllText(datePath, Date.ToString());
                 }
             }
-            ThreadPool.QueueUserWorkItem(CommandCallback);
+            CommandQueueThread = new Thread(QueueCallback);
+            CommandQueueThread.Start();
         }
         void OnSaveWorld(bool resetTime, HandledEventArgs e)
         {
-            SaveActions(Actions.ToArray());
+            new SaveCommand(Actions.ToArray()).Execute();
             Actions.Clear();
         }
 
-        void CommandCallback(object t)
+        void QueueCallback(object t)
         {
             if (WorldGen.genRand == null)
             {
@@ -319,160 +256,9 @@ namespace History
             }
             while (!Netplay.disconnect)
             {
-                if (CommandArgsQueue.Count != 0 && CommandQueue.Count != 0)
-                {
-                    HistoryArgs args;
-                    HistoryD command;
-                    lock (CommandQueue)
-                    {
-                        command = CommandQueue.Dequeue();
-                    }
-                    lock (CommandArgsQueue)
-                    {
-                        args = CommandArgsQueue.Dequeue();
-                    }
-                    command(args);
-                }
-                Thread.Sleep(100);
+                HCommand command = CommandQueue.Take();
+                command.Execute();
             }
-        }
-        void GetHistoryCallback(HistoryArgs e)
-        {
-            List<Action> actions = new List<Action>();
-            e.player.SendMessage("Tile history (" + e.x + ", " + e.y + "):", Color.Green);
-
-            using (QueryResult reader =
-                Database.QueryReader("SELECT Account, Action, Data, Time FROM History WHERE XY = @0 AND WorldID = @1",
-                (e.x << 16) + e.y, Main.worldID))
-            {
-                while (reader.Read())
-                {
-                    actions.Add(new Action
-                    {
-                        account = reader.Get<string>("Account"),
-                        action = (byte)reader.Get<int>("Action"),
-                        data = (byte)reader.Get<int>("Data"),
-                        time = reader.Get<int>("Time")
-                    });
-                }
-            }
-
-            actions.AddRange(from a in Actions
-                             where a.x == e.x && a.y == e.y
-                             select a);
-            foreach (Action a in actions)
-            {
-                e.player.SendMessage(a.ToString(), Color.Yellow);
-            }
-            if (actions.Count == 0)
-            {
-                e.player.SendMessage("No history available.", Color.Red);
-            }
-        }
-        void PruneCallback(HistoryArgs args)
-        {
-            int time = (int)(DateTime.UtcNow - Date).TotalSeconds - args.time;
-            Database.Query("DELETE FROM History WHERE Time < @0 AND WorldID = @1", time, Main.worldID);
-            Actions.RemoveAll(a => a.time < time);
-            args.player.SendMessage("Pruned history.", Color.Green);
-        }
-        void ReenactCallback(HistoryArgs args)
-        {
-            List<Action> actions = new List<Action>();
-            int reenactTime = (int)(DateTime.UtcNow - Date).TotalSeconds - args.time;
-
-            int plrX = (int)args.player.TPlayer.position.X / 16;
-            int plrY = (int)args.player.TPlayer.position.Y / 16 + 1;
-            int lowX = plrX - args.radius;
-            int highX = plrX + args.radius;
-            int lowY = plrY - args.radius;
-            int highY = plrY + args.radius;
-            string XYReq = string.Format("XY / 65536 BETWEEN {0} AND {1} AND XY & 65535 BETWEEN {2} AND {3}", lowX, highX, lowY, highY);
-
-            using (QueryResult reader =
-                Database.QueryReader("SELECT Action, Data, XY FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
-                args.account, reenactTime, Main.worldID))
-            {
-                while (reader.Read())
-                {
-                    actions.Add(new Action
-                    {
-                        action = (byte)reader.Get<int>("Action"),
-                        data = (byte)reader.Get<int>("Data"),
-                        x = reader.Get<int>("XY") >> 16,
-                        y = reader.Get<int>("XY") & 0xffff
-                    });
-                }
-            }
-
-            for (int i = Actions.Count - 1; i >= 0; i--)
-            {
-                Action action = Actions[i];
-                if (action.account == args.account && action.time >= reenactTime &&
-                    lowX <= action.x && lowY <= action.y && action.x <= highX && action.y <= highY)
-                {
-                    actions.Add(action);
-                    Actions.RemoveAt(i);
-                }
-            }
-            foreach (Action action in actions)
-            {
-                action.Reenact();
-            }
-
-            args.player.SendMessage("Reenacted " + actions.Count + " action" + (actions.Count == 1 ? "" : "s") + ".", Color.Green);
-        }
-        void RollbackCallback(HistoryArgs args)
-        {
-            List<Action> actions = new List<Action>();
-            int rollbackTime = (int)(DateTime.UtcNow - Date).TotalSeconds - args.time;
-
-            int plrX = (int)args.player.TPlayer.position.X / 16;
-            int plrY = (int)args.player.TPlayer.position.Y / 16 + 1;
-            int lowX = plrX - args.radius;
-            int highX = plrX + args.radius;
-            int lowY = plrY - args.radius;
-            int highY = plrY + args.radius;
-            string XYReq = string.Format("XY / 65536 BETWEEN {0} AND {1} AND XY & 65535 BETWEEN {2} AND {3}", lowX, highX, lowY, highY);
-
-            using (QueryResult reader =
-                Database.QueryReader("SELECT Action, Data, XY FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
-                args.account, rollbackTime, Main.worldID))
-            {
-                while (reader.Read())
-                {
-                    actions.Add(new Action
-                    {
-                        action = (byte)reader.Get<int>("Action"),
-                        data = (byte)reader.Get<int>("Data"),
-                        x = reader.Get<int>("XY") >> 16,
-                        y = reader.Get<int>("XY") & 0xffff
-                    });
-                }
-            }
-            Database.Query("DELETE FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
-                args.account, rollbackTime, Main.worldID);
-
-            for (int i = Actions.Count - 1; i >= 0; i--)
-            {
-                Action action = Actions[i];
-                if (action.account == args.account && action.time >= rollbackTime &&
-                    lowX <= action.x && lowY <= action.y && action.x <= highX && action.y <= highY)
-                {
-                    actions.Add(action);
-                    Actions.RemoveAt(i);
-                }
-            }
-            foreach (Action action in actions)
-            {
-                action.Rollback();
-            }
-
-            args.player.SendMessage("Rolled back " + actions.Count + " action" + (actions.Count == 1 ? "" : "s") + ".", Color.Green);
-        }
-        void SaveCallback(HistoryArgs e)
-        {
-            SaveActions(e.actions);
         }
 
         void HistoryCmd(CommandArgs e)
@@ -499,8 +285,7 @@ namespace History
             }
             else
             {
-                CommandQueue.Enqueue(ReenactCallback);
-                CommandArgsQueue.Enqueue(new HistoryArgs { account = e.Parameters[0], player = e.Player, radius = radius, time = time });
+                CommandQueue.Add(new RollbackCommand(e.Parameters[0],  time, radius, e.Player.Index, true));
             }
         }
         void Rollback(CommandArgs e)
@@ -522,8 +307,7 @@ namespace History
             }
             else
             {
-                CommandQueue.Enqueue(RollbackCallback);
-                CommandArgsQueue.Enqueue(new HistoryArgs { account = e.Parameters[0], player = e.Player, radius = radius, time = time });
+                CommandQueue.Add(new RollbackCommand(e.Parameters[0], time, radius, e.Player.Index));
             }
         }
         void Prune(CommandArgs e)
@@ -533,11 +317,10 @@ namespace History
                 e.Player.SendMessage("Invalid syntax! Proper syntax: /prunehist <time>", Color.Red);
                 return;
             }
-            int seconds;
-            if (GetTime(e.Parameters[0], out seconds) && seconds > 0)
+            int time;
+            if (GetTime(e.Parameters[0], out time) && time > 0)
             {
-                CommandQueue.Enqueue(PruneCallback);
-                CommandArgsQueue.Enqueue(new HistoryArgs { player = e.Player, time = seconds });
+                CommandQueue.Add(new PruneCommand(time, e.Player.Index));
             }
             else
             {
