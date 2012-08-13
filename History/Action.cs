@@ -28,7 +28,7 @@ namespace History
                     }
                     break;
                 case 1:
-                    if (!Main.tile[x, y].active)
+                    if (!Main.tile[x, y].active || Main.tileCut[Main.tile[x, y].type])
                     {
                         Main.tile[x, y].active = false;
                         Main.tile[x, y].type = 0;
@@ -71,7 +71,7 @@ namespace History
             {
                 case 0:
                 case 4:
-                    if (!Main.tile[x, y].active)
+                    if (!Main.tile[x, y].active || Main.tileCut[Main.tile[x, y].type])
                     {
                         Main.tile[x, y].active = true;
                         Main.tile[x, y].type = data;

@@ -256,8 +256,7 @@ namespace History
             }
             while (!Netplay.disconnect)
             {
-                HCommand command = CommandQueue.Take();
-                command.Execute();
+                CommandQueue.Take().Execute();
             }
         }
 
