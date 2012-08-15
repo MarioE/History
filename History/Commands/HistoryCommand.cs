@@ -10,11 +10,11 @@ namespace History.Commands
 {
     public class HistoryCommand : HCommand
     {
-        private int plr;
+        private TSPlayer plr;
         private int x;
         private int y;
 
-        public HistoryCommand(int x, int y, int plr)
+        public HistoryCommand(int x, int y, TSPlayer plr)
         {
             this.plr = plr;
             this.x = x;
@@ -44,14 +44,14 @@ namespace History.Commands
             actions.AddRange(from a in History.Actions
                              where a.x == x && a.y == y
                              select a);
-            TShock.Players[plr].SendMessage("Tile history (" + x + ", " + y + "):", Color.Green);
+            plr.SendMessage("Tile history (" + x + ", " + y + "):", Color.Green);
             foreach (Action a in actions)
             {
-                TShock.Players[plr].SendMessage(a.ToString(), Color.Yellow);
+                plr.SendMessage(a.ToString(), Color.Yellow);
             }
             if (actions.Count == 0)
             {
-                TShock.Players[plr].SendMessage("No history available.", Color.Red);
+                plr.SendMessage("No history available.", Color.Red);
             }
         }
     }

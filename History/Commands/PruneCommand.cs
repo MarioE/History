@@ -10,10 +10,10 @@ namespace History.Commands
 {
     public class PruneCommand : HCommand
     {
-        private int plr;
+        private TSPlayer plr;
         private int time;
 
-        public PruneCommand(int time, int plr)
+        public PruneCommand(int time, TSPlayer plr)
         {
             this.plr = plr;
             this.time = time;
@@ -24,7 +24,7 @@ namespace History.Commands
             int time = (int)(DateTime.UtcNow - History.Date).TotalSeconds - this.time;
             History.Database.Query("DELETE FROM History WHERE Time < @0 AND WorldID = @1", time, Main.worldID);
             History.Actions.RemoveAll(a => a.time < time);
-            TShock.Players[plr].SendMessage("Pruned history.", Color.Green);
+            plr.SendMessage("Pruned history.", Color.Green);
         }
     }
 }

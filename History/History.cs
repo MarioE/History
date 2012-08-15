@@ -138,7 +138,7 @@ namespace History
                     {
                         AwaitingHistory[e.Msg.whoAmI] = false;
                         TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-                        CommandQueue.Add(new HistoryCommand(X, Y, e.Msg.whoAmI));
+                        CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
                         e.Handled = true;
                     }
                     else if (TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]))
@@ -284,7 +284,7 @@ namespace History
             }
             else
             {
-                CommandQueue.Add(new RollbackCommand(e.Parameters[0],  time, radius, e.Player.Index, true));
+                CommandQueue.Add(new RollbackCommand(e.Parameters[0],  time, radius, e.Player, true));
             }
         }
         void Rollback(CommandArgs e)
@@ -306,7 +306,7 @@ namespace History
             }
             else
             {
-                CommandQueue.Add(new RollbackCommand(e.Parameters[0], time, radius, e.Player.Index));
+                CommandQueue.Add(new RollbackCommand(e.Parameters[0], time, radius, e.Player));
             }
         }
         void Prune(CommandArgs e)
@@ -319,7 +319,7 @@ namespace History
             int time;
             if (GetTime(e.Parameters[0], out time) && time > 0)
             {
-                CommandQueue.Add(new PruneCommand(time, e.Player.Index));
+                CommandQueue.Add(new PruneCommand(time, e.Player));
             }
             else
             {
