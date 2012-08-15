@@ -74,9 +74,9 @@ namespace History.Commands
             }
             if (!reenact)
             {
-                foreach (Action action in actions)
+                for (int i = actions.Count - 1; i >= 0; i--)
                 {
-                    action.Rollback();
+                    actions[i].Rollback();
                 }
             }
             else

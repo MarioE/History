@@ -49,7 +49,7 @@ namespace History
         public History(Main game)
             : base(game)
         {
-            Order = 10;
+            Order = 50;
         }
 
         bool GetTime(string str, out int time)
