@@ -106,7 +106,8 @@ namespace History
             {
                 GameHooks.Initialize -= OnInitialize;
                 NetHooks.GetData -= OnGetData;
-                WorldHooks.SaveWorld -= OnSaveWorld;
+				WorldHooks.SaveWorld -= OnSaveWorld;
+				CommandQueueThread.Abort();
             }
         }
         public override void Initialize()
