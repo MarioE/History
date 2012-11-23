@@ -193,10 +193,10 @@ namespace History
         }
         void OnInitialize()
         {
-            TShockAPI.Commands.ChatCommands.Add(new Command("history", HistoryCmd, "history"));
-            TShockAPI.Commands.ChatCommands.Add(new Command("maintenance", Prune, "prunehist"));
-            TShockAPI.Commands.ChatCommands.Add(new Command("rollback", Reenact, "reenact"));
-            TShockAPI.Commands.ChatCommands.Add(new Command("rollback", Rollback, "rollback"));
+            TShockAPI.Commands.ChatCommands.Add(new Command("history.get", HistoryCmd, "history"));
+            TShockAPI.Commands.ChatCommands.Add(new Command("history.prune", Prune, "prunehist"));
+            TShockAPI.Commands.ChatCommands.Add(new Command("history.reenact", Reenact, "reenact"));
+            TShockAPI.Commands.ChatCommands.Add(new Command("history.rollback", Rollback, "rollback"));
 
             switch (TShock.Config.StorageType.ToLower())
             {
