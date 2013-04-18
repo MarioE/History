@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("MarioE")]
 [assembly: AssemblyProduct("History")]
-[assembly: AssemblyCopyright("Copyright © MarioE 2012")]
+[assembly: AssemblyCopyright("Copyright © MarioE 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.10.1123")]
-[assembly: AssemblyFileVersion("1.0.10.1123")]
+[assembly: AssemblyVersion("1.0.11.0418")]
+[assembly: AssemblyFileVersion("1.0.11.0418")]

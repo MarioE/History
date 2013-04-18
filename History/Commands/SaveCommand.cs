@@ -16,6 +16,7 @@ namespace History.Commands
         private Action[] actions;
 
         public SaveCommand(Action[] actions)
+			: base(null)
         {
             this.actions = actions;
         }

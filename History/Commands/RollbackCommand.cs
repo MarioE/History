@@ -11,27 +11,26 @@ namespace History.Commands
     public class RollbackCommand : HCommand
     {
         private string account;
-        private TSPlayer plr;
         private int radius;
         private bool reenact;
         private int time;
 
-        public RollbackCommand(string account, int time, int radius, TSPlayer plr, bool reenact = false)
-        {
-            this.account = account;
-            this.time = time;
-            this.plr = plr;
-            this.radius = radius;
-            this.reenact = reenact;
-        }
+		public RollbackCommand(string account, int time, int radius, TSPlayer sender, bool reenact = false)
+			: base(sender)
+		{
+			this.account = account;
+			this.time = time;
+			this.radius = radius;
+			this.reenact = reenact;
+		}
 
         public override void Execute()
         {
             List<Action> actions = new List<Action>();
             int rollbackTime = (int)(DateTime.UtcNow - History.Date).TotalSeconds - time;
 
-            int plrX = plr.TileX;
-            int plrY = plr.TileY;
+			int plrX = sender.TileX;
+			int plrY = sender.TileY;
             int lowX = plrX - radius;
             int highX = plrX + radius;
             int lowY = plrY - radius;
@@ -88,7 +87,7 @@ namespace History.Commands
             }
 
             string str = reenact ? "Reenacted " : "Rolled back ";
-            plr.SendMessage(str + actions.Count + " action" + (actions.Count == 1 ? "" : "s") + ".", Color.Yellow);
+			sender.SendMessage(str + actions.Count + " action" + (actions.Count == 1 ? "" : "s") + ".", Color.Yellow);
         }
     }
 }

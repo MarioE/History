@@ -257,7 +257,16 @@ namespace History
             }
             while (!Netplay.disconnect)
             {
-                CommandQueue.Take().Execute();
+				HCommand command = CommandQueue.Take();
+				try
+				{
+					command.Execute();
+				}
+				catch (Exception ex)
+				{
+					command.Error("An error occurred. Check the logs for more details.");
+					Log.ConsoleError(ex.ToString());
+				}
             }
         }
 

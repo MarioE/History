@@ -10,16 +10,15 @@ namespace History.Commands
 {
     public class HistoryCommand : HCommand
     {
-        private TSPlayer plr;
         private int x;
         private int y;
 
-        public HistoryCommand(int x, int y, TSPlayer plr)
-        {
-            this.plr = plr;
-            this.x = x;
-            this.y = y;
-        }
+		public HistoryCommand(int x, int y, TSPlayer sender)
+			: base(sender)
+		{
+			this.x = x;
+			this.y = y;
+		}
 
         public override void Execute()
         {
@@ -44,14 +43,14 @@ namespace History.Commands
             actions.AddRange(from a in History.Actions
                              where a.x == x && a.y == y
                              select a);
-            plr.SendMessage("Tile history (" + x + ", " + y + "):", Color.Green);
+            sender.SendMessage("Tile history (" + x + ", " + y + "):", Color.Green);
             foreach (Action a in actions)
             {
-                plr.SendMessage(a.ToString(), Color.Yellow);
+				sender.SendMessage(a.ToString(), Color.Yellow);
             }
             if (actions.Count == 0)
             {
-                plr.SendMessage("No history available.", Color.Red);
+				sender.SendMessage("No history available.", Color.Red);
             }
         }
     }
