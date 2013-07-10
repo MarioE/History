@@ -22,17 +22,17 @@ namespace History
                 case 4:
                     if (Main.tile[x, y].active)
                     {
-                        Main.tile[x, y].active = true;
-                        Main.tile[x, y].type = data;
-                        TSPlayer.All.SendTileSquare(x, y, 3);
+						Main.tile[x, y].active = false;
+						Main.tile[x, y].type = 0;
+						TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
                 case 1:
                     if (!Main.tile[x, y].active || Main.tileCut[Main.tile[x, y].type])
                     {
-                        Main.tile[x, y].active = false;
-                        Main.tile[x, y].type = 0;
-                        TSPlayer.All.SendTileSquare(x, y, 1);
+						Main.tile[x, y].active = true;
+						Main.tile[x, y].type = data;
+						TSPlayer.All.SendTileSquare(x, y, 3);
                     }
                     break;
                 case 2:
