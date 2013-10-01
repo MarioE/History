@@ -20,17 +20,17 @@ namespace History
             {
                 case 0:
                 case 4:
-                    if (Main.tile[x, y].active)
+					if (Main.tile[x, y].active())
                     {
-						Main.tile[x, y].active = false;
+						Main.tile[x, y].active(false);
 						Main.tile[x, y].type = 0;
 						TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
                 case 1:
-                    if (!Main.tile[x, y].active || Main.tileCut[Main.tile[x, y].type])
+                    if (!Main.tile[x, y].active() || Main.tileCut[Main.tile[x, y].type])
                     {
-						Main.tile[x, y].active = true;
+						Main.tile[x, y].active(true);
 						Main.tile[x, y].type = data;
 						TSPlayer.All.SendTileSquare(x, y, 3);
                     }
@@ -50,16 +50,16 @@ namespace History
                     }
                     break;
                 case 5:
-                    if (Main.tile[x, y].wire)
+                    if (Main.tile[x, y].wire())
                     {
-                        Main.tile[x, y].wire = false;
+						Main.tile[x, y].wire(false);
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
                 case 6:
-                    if (!Main.tile[x, y].wire)
+                    if (!Main.tile[x, y].wire())
                     {
-                        Main.tile[x, y].wire = true;
+						Main.tile[x, y].wire(true);
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
@@ -71,17 +71,17 @@ namespace History
             {
                 case 0:
                 case 4:
-                    if (!Main.tile[x, y].active || Main.tileCut[Main.tile[x, y].type])
+                    if (!Main.tile[x, y].active() || Main.tileCut[Main.tile[x, y].type])
                     {
-                        Main.tile[x, y].active = true;
+                        Main.tile[x, y].active(true);
                         Main.tile[x, y].type = data;
                         TSPlayer.All.SendTileSquare(x, y, 3);
                     }
                     break;
                 case 1:
-                    if (Main.tile[x, y].active)
+                    if (Main.tile[x, y].active())
                     {
-                        Main.tile[x, y].active = false;
+                        Main.tile[x, y].active(false);
                         Main.tile[x, y].type = 0;
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
@@ -101,16 +101,16 @@ namespace History
                     }
                     break;
                 case 5:
-                    if (!Main.tile[x, y].wire)
+                    if (!Main.tile[x, y].wire())
                     {
-                        Main.tile[x, y].wire = true;
+                        Main.tile[x, y].wire(true);
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
                 case 6:
-                    if (Main.tile[x, y].wire)
+                    if (Main.tile[x, y].wire())
                     {
-                        Main.tile[x, y].wire = false;
+						Main.tile[x, y].wire(false);
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;

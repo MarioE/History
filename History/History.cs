@@ -9,16 +9,16 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using History.Commands;
-using Hooks;
 using Mono.Data.Sqlite;
 using MySql.Data.MySqlClient;
 using Terraria;
+using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.DB;
 
 namespace History
 {
-    [APIVersion(1, 12)]
+    [ApiVersion(1, 14)]
     public class History : TerrariaPlugin
     {
         public static List<Action> Actions = new List<Action>(SaveCount);
@@ -104,17 +104,18 @@ namespace History
         {
             if (disposing)
             {
-                GameHooks.Initialize -= OnInitialize;
-                NetHooks.GetData -= OnGetData;
-				WorldHooks.SaveWorld -= OnSaveWorld;
+				ServerApi.Hooks.GameInitialize.Deregister(this, OnInitialize);
+				ServerApi.Hooks.NetGetData.Deregister(this, OnGetData);
+				ServerApi.Hooks.WorldSave.Deregister(this, OnSaveWorld);
+
 				CommandQueueThread.Abort();
             }
         }
         public override void Initialize()
         {
-            GameHooks.Initialize += OnInitialize;
-            NetHooks.GetData += OnGetData;
-            WorldHooks.SaveWorld += OnSaveWorld;
+			ServerApi.Hooks.GameInitialize.Register(this, OnInitialize);
+			ServerApi.Hooks.NetGetData.Register(this, OnGetData);
+			ServerApi.Hooks.WorldSave.Register(this, OnSaveWorld);
         }
         void Queue(string account, int X, int Y, byte action, byte data = 0)
         {
@@ -150,13 +151,13 @@ namespace History
                             case 0:
                             case 4:
                                 if (!Main.tileCut[Main.tile[X, Y].type] && Main.tile[X, Y].type != 127 &&
-                                    Main.tile[X, Y].active && e.Msg.readBuffer[e.Index + 9] == 0 && !Main.tileFrameImportant[Main.tile[X, Y].type])
+                                    Main.tile[X, Y].active() && e.Msg.readBuffer[e.Index + 9] == 0 && !Main.tileFrameImportant[Main.tile[X, Y].type])
                                 {
                                     Queue(account, X, Y, 0, Main.tile[X, Y].type);
                                 }
                                 break;
                             case 1:
-                                if ((!Main.tile[X, Y].active || Main.tileCut[Main.tile[X, Y].type]) && e.Msg.readBuffer[e.Index + 9] != 127
+                                if ((!Main.tile[X, Y].active() || Main.tileCut[Main.tile[X, Y].type]) && e.Msg.readBuffer[e.Index + 9] != 127
                                     && !Main.tileFrameImportant[e.Msg.readBuffer[e.Index + 9]])
                                 {
                                     Queue(account, X, Y, 1, e.Msg.readBuffer[e.Index + 9]);
@@ -175,13 +176,13 @@ namespace History
                                 }
                                 break;
                             case 5:
-                                if (Main.tile[X, Y].wire)
+                                if (Main.tile[X, Y].wire())
                                 {
                                     Queue(account, X, Y, 5);
                                 }
                                 break;
                             case 6:
-                                if (!Main.tile[X, Y].wire)
+                                if (!Main.tile[X, Y].wire())
                                 {
                                     Queue(account, X, Y, 6);
                                 }
@@ -191,7 +192,7 @@ namespace History
                 }
             }
         }
-        void OnInitialize()
+        void OnInitialize(EventArgs e)
         {
             TShockAPI.Commands.ChatCommands.Add(new Command("history.get", HistoryCmd, "history"));
             TShockAPI.Commands.ChatCommands.Add(new Command("history.prune", Prune, "prunehist"));
@@ -243,7 +244,7 @@ namespace History
             CommandQueueThread = new Thread(QueueCallback);
             CommandQueueThread.Start();
         }
-        void OnSaveWorld(bool resetTime, HandledEventArgs e)
+        void OnSaveWorld(WorldSaveEventArgs e)
         {
             new SaveCommand(Actions.ToArray()).Execute();
             Actions.Clear();
