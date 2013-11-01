@@ -151,7 +151,7 @@ namespace History
                             goto done;
                     }
                 done:
-                    //Main.tile[x, y].color(paint); IMPLEMENT PAINT
+                    //Main.tile[x, y].color(paint); IMPLEMENT PAINT (painting furniture would be good too)
                     //Send larger area for furniture
                     if (Main.tileFrameImportant[data])
                         TSPlayer.All.SendTileSquare(x, y, 8);
@@ -187,7 +187,7 @@ namespace History
                     if (Main.tile[x, y].wall != data) //change if not what was deleted
                     {
                         Main.tile[x, y].wall = data;
-                        //wallpaint here
+                        //Main.tile[x, y].wallColor(paint); IMPLEMENT PAINT
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
