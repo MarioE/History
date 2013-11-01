@@ -32,12 +32,12 @@ namespace History.Commands
                     {
                         using (SqliteCommand command = (SqliteCommand)db.CreateCommand())
                         {
-                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, WorldID) VALUES (@0, @1, @2, @3, @4, @5)";
-                            for (int i = 0; i < 6; i++)
+                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID) VALUES (@0, @1, @2, @3, @4, @5, @6, @7)";
+                            for (int i = 0; i < 8; i++)
                             {
                                 command.AddParameter("@" + i, null);
                             }
-                            command.Parameters[5].Value = Main.worldID;
+                            command.Parameters[7].Value = Main.worldID;
 
                             foreach (Action a in actions)
                             {
@@ -46,6 +46,8 @@ namespace History.Commands
                                 command.Parameters[2].Value = a.action;
                                 command.Parameters[3].Value = (a.x << 16) + a.y;
                                 command.Parameters[4].Value = a.data;
+                                command.Parameters[5].Value = a.style;
+                                command.Parameters[6].Value = a.paint;
                                 command.ExecuteNonQuery();
                             }
                         }
@@ -62,8 +64,8 @@ namespace History.Commands
                     {
                         using (MySqlCommand command = (MySqlCommand)db.CreateCommand())
                         {
-                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, WorldID) VALUES (@0, @1, @2, @3, @4, @5)";
-                            for (int i = 0; i < 6; i++)
+                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID) VALUES (@0, @1, @2, @3, @4, @5, @6, @7)";
+                            for (int i = 0; i < 8; i++)
                             {
                                 command.AddParameter("@" + i, null);
                             }
@@ -76,6 +78,8 @@ namespace History.Commands
                                 command.Parameters[2].Value = a.action;
                                 command.Parameters[3].Value = (a.x << 16) + a.y;
                                 command.Parameters[4].Value = a.data;
+                                command.Parameters[5].Value = a.style;
+                                command.Parameters[6].Value = a.paint;
                                 command.ExecuteNonQuery();
                             }
                         }

@@ -38,7 +38,7 @@ namespace History.Commands
             string XYReq = string.Format("XY / 65536 BETWEEN {0} AND {1} AND XY & 65535 BETWEEN {2} AND {3}", lowX, highX, lowY, highY);
 
             using (QueryResult reader =
-                History.Database.QueryReader("SELECT Action, Data, XY FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
+                History.Database.QueryReader("SELECT Action, Data, Style, Paint, XY FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
                 account, rollbackTime, Main.worldID))
             {
                 while (reader.Read())
@@ -47,6 +47,8 @@ namespace History.Commands
                     {
                         action = (byte)reader.Get<int>("Action"),
                         data = (byte)reader.Get<int>("Data"),
+                        style = (byte)reader.Get<int>("Style"),
+                        paint = (byte)reader.Get<int>("Paint"),
                         x = reader.Get<int>("XY") >> 16,
                         y = reader.Get<int>("XY") & 0xffff
                     });
@@ -58,7 +60,7 @@ namespace History.Commands
                     account, rollbackTime, Main.worldID);
             }
 
-            for (int i = History.Actions.Count - 1; i >= 0; i--)
+            for (int i = 0; i >= 0 && i < History.Actions.Count ; i++)
             {
                 Action action = History.Actions[i];
                 if (action.account == account && action.time >= rollbackTime &&
@@ -68,6 +70,7 @@ namespace History.Commands
                     if (!reenact)
                     {
                         History.Actions.RemoveAt(i);
+                        i--;
                     }
                 }
             }

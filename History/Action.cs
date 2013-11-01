@@ -10,6 +10,8 @@ namespace History
         public string account;
         public byte action;
         public byte data;
+        public byte style;
+        public byte paint;
         public int time;
         public int x;
         public int y;
@@ -31,7 +33,7 @@ namespace History
                     //Don't place if already there
                     if (Main.tile[x,y].active() && Main.tile[x, y].type == data)
                         break;
-                    WorldGen.PlaceTile(x, y, data, false, true);// , style: placestyle); IMPLEMENT PLACESTYLE
+                    WorldGen.PlaceTile(x, y, data, false, true, style: style);
                     if (Main.tileFrameImportant[data])
                         TSPlayer.All.SendTileSquare(x, y, 8);
                     else
@@ -136,7 +138,7 @@ namespace History
                     else if (data == 2 || data == 23 || data == 60 || data == 70 || data == 109 || data == 199)// grasses need to place manually, not from placeTile
                     {
                         Main.tile[x, y].type = 2;
-                        //Main.tile[x, y].color(paint); implement paint
+                        Main.tile[x, y].color(paint);
                         Main.tile[x, y].active(true);
                         TSPlayer.All.SendTileSquare(x, y, 1);
                         break;
@@ -147,11 +149,11 @@ namespace History
                     //small items can be placed correctly by checking down a bit;
                     for (int yy = 0; yy <= 2; yy++)
                     {
-                        if (WorldGen.PlaceTile(x, y + yy, data, false, true, 0))//style: placestyle)) IMPLEMENT PLACESTYLE
+                        if (WorldGen.PlaceTile(x, y + yy, data, false, true, 0, style: style))
                             goto done;
                     }
                 done:
-                    //Main.tile[x, y].color(paint); IMPLEMENT PAINT (painting furniture would be good too)
+                    Main.tile[x, y].color(paint); //TODO: painting furniture would be good too
                     //Send larger area for furniture
                     if (Main.tileFrameImportant[data])
                         TSPlayer.All.SendTileSquare(x, y, 8);
@@ -163,18 +165,14 @@ namespace History
                     if (!delete && Main.tileSand[data])//sand falling compensation (it may have fallen down)
                     {
                         int newY = y+1;
-                        while (newY < Main.maxTilesY && !Main.tile[x, newY].active())
+                        while (newY < Main.maxTilesY-1 && !Main.tile[x, newY].active())
                         {
-                            if (Main.tile[x, newY].active())
-                            {
-                                if (Main.tile[x, newY].type == data)
-                                {
-                                    y = newY;
-                                    delete = true;
-                                }
-                                break;
-                            }
                             newY++;
+                        }
+                        if (Main.tile[x, newY].type == data)
+                        {
+                            y = newY;
+                            delete = true;
                         }
                     }
                     if (delete)
@@ -187,7 +185,7 @@ namespace History
                     if (Main.tile[x, y].wall != data) //change if not what was deleted
                     {
                         Main.tile[x, y].wall = data;
-                        //Main.tile[x, y].wallColor(paint); IMPLEMENT PAINT
+                        Main.tile[x, y].wallColor(paint);
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;

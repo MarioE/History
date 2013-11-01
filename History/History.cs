@@ -118,14 +118,14 @@ namespace History
             ServerApi.Hooks.WorldSave.Register(this, OnSaveWorld);
             initBreaks();
         }
-        void Queue(string account, int X, int Y, byte action, byte data = 0)
+        void Queue(string account, int X, int Y, byte action, byte data = 0, byte style = 0, byte paint = 0)
         {
             if (Actions.Count == SaveCount)
             {
                 CommandQueue.Add(new SaveCommand(Actions.ToArray()));
                 Actions.Clear();
             }
-            Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y });
+            Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y, paint = paint, style = style });
         }
         void getPlaceData(byte type, ref int which, ref int div)
         {
@@ -365,10 +365,11 @@ namespace History
             }
             return dest;
         }
-        void adjustFurniture(Tile tile, ref int x, ref int y, ref byte style)
+        void adjustFurniture(ref int x, ref int y, ref byte style)
         {
             int which = 10;
             int div = 1;
+            Tile tile = Main.tile[x, y];
             getPlaceData(tile.type, ref which, ref div);
             switch (which)
             {
@@ -565,7 +566,7 @@ namespace History
             breakableWall[246] = true;
         }
 
-        void logEdit(byte etype, Tile tile, int X, int Y, byte type, string account)
+        void logEdit(byte etype, Tile tile, int X, int Y, byte type, string account, byte style = 0)
         {
             switch (etype)
             {
@@ -575,7 +576,7 @@ namespace History
                     byte pStyle = 0;
                     if (Main.tile[X, Y].active() && (Main.tileSolid[tileType] || Main.tileFrameImportant[tileType]) && !Main.tileCut[tileType] && tileType != 127)
                     {
-                        adjustFurniture(Main.tile[X, Y], ref X, ref Y, ref pStyle);
+                        adjustFurniture(ref X, ref Y, ref pStyle);
                         if (Main.tileSolid[tileType] && tileType != 10)
                         {
                             if (Main.tile[X, Y - 1].active() && breakableBottom[Main.tile[X, Y - 1].type])
@@ -615,15 +616,13 @@ namespace History
                             }
                         }
                         if (tileType == 11) tileType = 10;
-                        Queue(account, X, Y, 0, tileType); // ADD PAINT + STYLE
+                        Queue(account, X, Y, 0, tileType, pStyle, Main.tile[X, Y].color());
                     }
                     break;
                 case 1://add tile
-                    if ((!Main.tile[X, Y].active() || Main.tileCut[Main.tile[X, Y].type]) && type != 127
-                        && !Main.tileFrameImportant[type])
+                    if ((!Main.tile[X, Y].active() || Main.tileCut[Main.tile[X, Y].type]) && type != 127)
                     {
-                        //SAVE PLACESTYLE (for redo)
-                        Queue(account, X, Y, 1, type);
+                        Queue(account, X, Y, 1, type, style);
                     }
                     break;
                 case 2://del wall
@@ -632,7 +631,7 @@ namespace History
                         //break things on walls
                         if (Main.tile[X, Y].active() && breakableWall[Main.tile[X, Y].type])
                             logEdit(0, tile, X, Y, 0, account);
-                        Queue(account, X, Y, 2, Main.tile[X, Y].wall);// ADD WALL PAINT (for undo)
+                        Queue(account, X, Y, 2, Main.tile[X, Y].wall, 0, Main.tile[X, Y].wallColor());
                     }
                     break;
                 case 3://add wall
@@ -694,29 +693,47 @@ namespace History
 
         void OnGetData(GetDataEventArgs e)
         {
-            if (!e.Handled && e.MsgID == PacketTypes.Tile)
+            if (!e.Handled)
             {
-                byte etype = e.Msg.readBuffer[e.Index];
-                int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
-                int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
-                byte type = e.Msg.readBuffer[e.Index + 9];
-                byte style = e.Msg.readBuffer[e.Index + 10];
-
-                if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
+                if (e.MsgID == PacketTypes.Tile)
                 {
-                    if (AwaitingHistory[e.Msg.whoAmI])
+                    byte etype = e.Msg.readBuffer[e.Index];
+                    int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
+                    int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
+                    byte type = e.Msg.readBuffer[e.Index + 9];
+                    byte style = e.Msg.readBuffer[e.Index + 10];
+
+                    if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
                     {
-                        AwaitingHistory[e.Msg.whoAmI] = false;
-                        TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-                        CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-                        e.Handled = true;
+                        if (AwaitingHistory[e.Msg.whoAmI])
+                        {
+                            AwaitingHistory[e.Msg.whoAmI] = false;
+                            TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
+                            CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
+                            e.Handled = true;
+                        }
+                        else if (TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]))
+                        {
+                            //effect only
+                            if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
+                                return;
+                            logEdit(etype, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].UserAccountName, style);
+                        }
                     }
-                    else if (TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]))
+                }
+                //chest delete
+                else if (e.MsgID == PacketTypes.TileKill)
+                {
+                    int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index);
+                    int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
+                    if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
                     {
-                        //effect only
-                        if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
-                            return;
-                        logEdit(etype, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].UserAccountName);
+                        if (TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]) && Main.tile[X, Y].type == 21)//chest kill!
+                        {
+                            byte style = 0;
+                            adjustFurniture(ref X, ref Y, ref style);
+                            Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 0, Main.tile[X, Y].type, style, Main.tile[X, Y].color());
+                        }
                     }
                 }
             }
@@ -755,6 +772,8 @@ namespace History
                 new SqlColumn("Action", MySqlDbType.Int32),
                 new SqlColumn("XY", MySqlDbType.Int32),
                 new SqlColumn("Data", MySqlDbType.Int32),
+                new SqlColumn("Style", MySqlDbType.Int32),
+                new SqlColumn("Paint", MySqlDbType.Int32),
                 new SqlColumn("WorldID", MySqlDbType.Int32)));
 
             string datePath = Path.Combine(TShock.SavePath, "date.dat");
