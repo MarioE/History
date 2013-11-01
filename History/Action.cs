@@ -137,7 +137,7 @@ namespace History
                     }
                     else if (data == 2 || data == 23 || data == 60 || data == 70 || data == 109 || data == 199)// grasses need to place manually, not from placeTile
                     {
-                        Main.tile[x, y].type = 2;
+                        Main.tile[x, y].type = data;
                         Main.tile[x, y].color(paint);
                         Main.tile[x, y].active(true);
                         TSPlayer.All.SendTileSquare(x, y, 1);
