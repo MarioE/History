@@ -104,89 +104,635 @@ namespace History
         {
             if (disposing)
             {
-				ServerApi.Hooks.GameInitialize.Deregister(this, OnInitialize);
-				ServerApi.Hooks.NetGetData.Deregister(this, OnGetData);
-				ServerApi.Hooks.WorldSave.Deregister(this, OnSaveWorld);
+                ServerApi.Hooks.GameInitialize.Deregister(this, OnInitialize);
+                ServerApi.Hooks.NetGetData.Deregister(this, OnGetData);
+                ServerApi.Hooks.WorldSave.Deregister(this, OnSaveWorld);
 
-				CommandQueueThread.Abort();
+                CommandQueueThread.Abort();
             }
         }
         public override void Initialize()
         {
-			ServerApi.Hooks.GameInitialize.Register(this, OnInitialize);
-			ServerApi.Hooks.NetGetData.Register(this, OnGetData);
-			ServerApi.Hooks.WorldSave.Register(this, OnSaveWorld);
+            ServerApi.Hooks.GameInitialize.Register(this, OnInitialize);
+            ServerApi.Hooks.NetGetData.Register(this, OnGetData);
+            ServerApi.Hooks.WorldSave.Register(this, OnSaveWorld);
+            initBreaks();
         }
-        void Queue(string account, int X, int Y, byte action, byte data = 0)
+        void Queue(string account, int X, int Y, byte action, byte data = 0, byte style = 0, byte paint = 0)
         {
             if (Actions.Count == SaveCount)
             {
                 CommandQueue.Add(new SaveCommand(Actions.ToArray()));
                 Actions.Clear();
             }
-            Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y });
+            Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y, paint = paint, style = style });
+        }
+        void getPlaceData(byte type, ref int which, ref int div)
+        {
+            switch (type)
+            {
+                //WHICH 0:X   1:Y
+                case 13: //bottle
+                case 49: //blue candle
+                case 174: //fancy candle
+                case 78: //clay pot
+                case 82: //herb
+                case 83: //herb
+                case 84: //herb
+                case 91: //banner
+                case 92: //lamppost
+                case 93: //tikitorch
+                case 144: //timer
+                case 149: //christmas light
+                case 178: //gems
+                case 184:
+                case 239: //bars
+                    which = 0;
+                    div = 18;
+                    break;
+                case 19:
+                case 135:
+                case 137:
+                case 141:
+                case 210:
+                    which = 1;
+                    div = 18;
+                    break;
+                case 4: //torch
+                case 33: //candle
+                    which = 1;
+                    div = 22;
+                    break;
+                case 227:
+                    which = 0;
+                    div = 34;
+                    break;
+                case 16:
+                case 18:
+                case 21://chest
+                case 27: //sunflower (randomness)
+                case 29:
+                case 55:// chest
+                case 85: //tombstone
+                case 103:
+                case 104://grandfather
+                case 105://statues
+                case 128: //manniquin (orient)
+                case 134:
+                case 207:// water fountains
+                case 245: //2x3 wall picture
+                case 254:
+                    which = 0;
+                    div = 36;
+                    break;
+                case 35://jack 'o lantern??
+                case 42://lanterns
+                case 79://beds (orient)
+                case 90://bathtub (orient)
+                case 139://music box
+                case 246:// 3x2 wall painting
+                    which = 1;
+                    div = 36;
+                    break;
+                case 15:
+                case 20:
+                case 216:
+                    which = 1;
+                    div = 40;
+                    break;
+                case 14:
+                case 17:
+                case 26:
+                case 86:
+                case 87:
+                case 88:
+                case 89:
+                case 114:
+                case 186:
+                case 187:
+                case 215:
+                case 217:
+                case 218:
+                case 237:
+                case 244:
+                case 36:
+                case 106:
+                case 170:
+                case 171:
+                case 172:
+                case 212:
+                case 219:
+                case 220:
+                case 228:
+                case 231:
+                case 243:
+                case 247:
+                case 77:
+                case 101:
+                case 102:
+                case 133:
+                case 235://teleporter
+                    which = 0;
+                    div = 54;
+                    break;
+                case 10:
+                case 11://door
+                case 34://chandelier
+                case 241://4x3 wall painting
+                    which = 1;
+                    div = 54;
+                    break;
+                case 240://painting, style stored in both
+                    which = 2;
+                    div = 54;
+                    break;
+                case 209:
+                    which = 0;
+                    div = 72;
+                    break;
+                case 242:
+                    which = 1;
+                    div = 72;
+                    break;
+                default:
+                    break;
+            }
+        }
+        Vector2 destFrame(byte type)
+        {
+            Vector2 dest;
+            switch (type)//(x,y) is from top left
+            {
+                case 42:
+                case 16:
+                case 18:
+                case 29:
+                case 103:
+                case 134:
+                case 91: // (0,0)
+                    dest = new Vector2(0, 0);
+                    break;
+
+                case 139:
+                case 35:
+                case 21:
+                case 85:
+                case 55:
+                case 245:
+                case 10:
+                case 11:// (0,1) DOOR, IGNORE FRAMEX*18 for 10
+                    dest = new Vector2(0, 1);
+                    break;
+                case 34:
+                case 95:
+                case 126:
+                case 246:
+                case 235:// (1,0)
+                    dest = new Vector2(1, 0);
+                    break;
+                case 132:
+                case 138:
+                case 142:
+                case 143:
+                case 94:
+                case 79:
+                case 90:
+                case 240:
+                case 241:
+                case 97:
+                case 98:
+                case 99:
+                case 100:
+                case 125:
+                case 254:
+                case 96:
+                case 14:
+                case 17:
+                case 26:
+                case 77:
+                case 86:
+                case 87:
+                case 88:
+                case 89:
+                case 114:
+                case 133:
+                case 186:
+                case 187:
+                case 215:
+                case 217:
+                case 218:
+                case 237:
+                case 244:
+                case 173:// (1,1)
+                    dest = new Vector2(1, 1);
+                    break;
+                case 106:
+                case 212:
+                case 219:
+                case 220:
+                case 228:
+                case 231:
+                case 243:
+                case 209:
+                case 247:// (1,2)
+                    dest = new Vector2(1, 2);
+                    break;
+                case 101:
+                case 102:// (1,3)
+                    dest = new Vector2(1, 3);
+                    break;
+                case 242:// (2,2)
+                    dest = new Vector2(2, 2);
+                    break;
+                case 128:
+                case 105:
+                case 93: // (0,2)
+                    dest = new Vector2(0, 2);
+                    break;
+                case 207:
+                case 27: // (0,3)
+                    dest = new Vector2(0, 3);
+                    break;
+                case 104: // (0,4)
+                    dest = new Vector2(0, 4);
+                    break;
+                case 92: // (0,5)
+                    dest = new Vector2(0, 5);
+                    break;
+                default:
+                    dest = new Vector2(-1, -1);
+                    break;
+            }
+            return dest;
+        }
+        void adjustFurniture(ref int x, ref int y, ref byte style)
+        {
+            int which = 10;
+            int div = 1;
+            Tile tile = Main.tile[x, y];
+            getPlaceData(tile.type, ref which, ref div);
+            switch (which)
+            {
+                case 0:
+                    style = (byte)(tile.frameX / div);
+                    break;
+                case 1:
+                    style = (byte)(tile.frameY / div);
+                    break;
+                case 2:
+                    style = (byte)((tile.frameY / div) * 36 + (tile.frameX / div));
+                    break;
+                default:
+                    break;
+            }
+            if (!Main.tileFrameImportant[tile.type]) return;
+            if (div == 1) div = 0xFFFF;
+            Vector2 dest = destFrame(tile.type);
+            if (dest.X >= 0)
+            {
+                int frameX = tile.frameX;
+                int frameY = tile.frameY;
+                int relx = 0;
+                int rely = 0;
+                switch (which)
+                {
+                    case 0:
+                        relx = (frameX % div) / 18;
+                        rely = (frameY) / 18;
+                        break;
+                    case 1:
+                        relx = (frameX) / 18;
+                        rely = (frameY % div) / 18;
+                        break;
+                    case 2:
+                        relx = (frameX % div) / 18;
+                        rely = (frameY % div) / 18;
+                        break;
+                    default:
+                        relx = (frameX) / 18;
+                        rely = (frameY) / 18;
+                        break;
+                }
+                if (tile.type == 55)//sign
+                {
+                    switch (style)
+                    {
+                        case 1:
+                        case 2:
+                            dest.Y--;
+                            break;
+                        case 3:
+                            dest.Y--;
+                            dest.X++;
+                            break;
+                    }
+                }
+                else if (tile.type == 11)//opened door
+                {
+                    if (frameX / 36 > 0)
+                    {
+                        relx -= 2;
+                        dest.X++;
+                    }
+                }
+                else if (tile.type == 10)//closed door
+                {
+                    relx = 0;
+                }
+                else if (tile.type == 209)//cannoonn
+                {
+                    rely = (frameY % 37) / 18;
+                }
+                else if (tile.type == 79 || tile.type == 90)//bed,bathtub
+                {
+                    relx = (frameX % 72) / 18;
+                }
+                x += ((int)dest.X - relx);
+                y += ((int)dest.Y - rely);
+            }
+        }
+
+        bool[] breakableBottom = new bool[255];
+        bool[] breakableTop = new bool[255];
+        bool[] breakableSides = new bool[255];
+        bool[] breakableWall = new bool[255];
+        void initBreaks()
+        {
+            breakableBottom[4] = true;
+            breakableBottom[10] = true;
+            breakableBottom[11] = true;
+            breakableBottom[13] = true;
+            breakableBottom[14] = true;
+            breakableBottom[15] = true;
+            breakableBottom[16] = true;
+            breakableBottom[17] = true;
+            breakableBottom[18] = true;
+            breakableBottom[21] = true;
+            breakableBottom[26] = true;
+            breakableBottom[27] = true;
+            breakableBottom[29] = true;
+            breakableBottom[33] = true;
+            breakableBottom[35] = true;
+            breakableBottom[49] = true;
+            breakableBottom[50] = true;
+            breakableBottom[55] = true;
+            breakableBottom[77] = true;
+            breakableBottom[78] = true;
+            breakableBottom[79] = true;
+            breakableBottom[81] = true;
+            breakableBottom[82] = true;
+            breakableBottom[85] = true;
+            breakableBottom[86] = true;
+            breakableBottom[87] = true;
+            breakableBottom[88] = true;
+            breakableBottom[89] = true;
+            breakableBottom[90] = true;
+            breakableBottom[92] = true;
+            breakableBottom[93] = true;
+            breakableBottom[94] = true;
+            breakableBottom[96] = true;
+            breakableBottom[97] = true;
+            breakableBottom[98] = true;
+            breakableBottom[99] = true;
+            breakableBottom[100] = true;
+            breakableBottom[101] = true;
+            breakableBottom[102] = true;
+            breakableBottom[103] = true;
+            breakableBottom[104] = true;
+            breakableBottom[105] = true;
+            breakableBottom[106] = true;
+            breakableBottom[114] = true;
+            breakableBottom[125] = true;
+            breakableBottom[128] = true;
+            breakableBottom[129] = true;
+            breakableBottom[132] = true;
+            breakableBottom[133] = true;
+            breakableBottom[134] = true;
+            breakableBottom[135] = true;
+            breakableBottom[136] = true;
+            breakableBottom[138] = true;
+            breakableBottom[139] = true;
+            breakableBottom[142] = true;
+            breakableBottom[143] = true;
+            breakableBottom[144] = true;
+            breakableBottom[149] = true;
+            breakableBottom[173] = true;
+            breakableBottom[174] = true;
+            breakableBottom[178] = true;
+            breakableBottom[186] = true;
+            breakableBottom[187] = true;
+            breakableBottom[207] = true;
+            breakableBottom[209] = true;
+            breakableBottom[212] = true;
+            breakableBottom[215] = true;
+            breakableBottom[216] = true;
+            breakableBottom[217] = true;
+            breakableBottom[218] = true;
+            breakableBottom[219] = true;
+            breakableBottom[220] = true;
+            //breakableBottom[227] = true; DYES, SOME GROW ON TOP?
+            breakableBottom[228] = true;
+            breakableBottom[231] = true;
+            breakableBottom[235] = true;
+            breakableBottom[237] = true;
+            breakableBottom[239] = true;
+            breakableBottom[243] = true;
+            breakableBottom[244] = true;
+            breakableBottom[247] = true;
+            breakableBottom[254] = true;
+
+            breakableTop[10] = true;
+            breakableTop[11] = true;
+            breakableTop[34] = true;
+            breakableTop[42] = true;
+            breakableTop[55] = true;
+            breakableTop[91] = true;
+            breakableTop[95] = true;//chinese lantern
+            breakableTop[126] = true;
+            breakableTop[129] = true;
+            breakableTop[149] = true;
+
+            breakableSides[4] = true;
+            breakableSides[55] = true;
+            breakableSides[129] = true;
+            breakableSides[136] = true;
+            breakableSides[149] = true;
+
+            breakableWall[4] = true;
+            breakableWall[240] = true;
+            breakableWall[241] = true;
+            breakableWall[242] = true;
+            breakableWall[245] = true;
+            breakableWall[246] = true;
+        }
+
+        void logEdit(byte etype, Tile tile, int X, int Y, byte type, string account, byte style = 0)
+        {
+            switch (etype)
+            {
+                case 0:
+                case 4://del tile
+                    byte tileType = Main.tile[X, Y].type;
+                    byte pStyle = 0;
+                    if (Main.tile[X, Y].active() && (Main.tileSolid[tileType] || Main.tileFrameImportant[tileType]) && !Main.tileCut[tileType] && tileType != 127)
+                    {
+                        adjustFurniture(ref X, ref Y, ref pStyle);
+                        if (Main.tileSolid[tileType] && tileType != 10)
+                        {
+                            if (Main.tile[X, Y - 1].active() && breakableBottom[Main.tile[X, Y - 1].type])
+                                logEdit(0, Main.tile[X, Y - 1], X, Y - 1, 0, account);
+                            if (Main.tile[X, Y + 1].active() && breakableTop[Main.tile[X, Y + 1].type])
+                                logEdit(0, Main.tile[X, Y + 1], X, Y + 1, 0, account);
+                            if (Main.tile[X - 1, Y].active() && breakableSides[Main.tile[X - 1, Y].type])
+                                logEdit(0, Main.tile[X - 1, Y], X - 1, Y, 0, account);
+                            if (Main.tile[X + 1, Y].active() && breakableSides[Main.tile[X + 1, Y].type])
+                                logEdit(0, Main.tile[X + 1, Y], X + 1, Y, 0, account);
+                        }
+                        else if (Main.tileTable[tileType])
+                        {
+                            int baseStart = -1;
+                            int baseEnd = 1;
+                            int height = 2;
+                            switch (tileType)
+                            {
+                                case 18://workbench
+                                    baseStart = 0;
+                                    height = 1;
+                                    break;
+                                case 19://platform
+                                    baseStart = baseEnd = 0;
+                                    height = 1;
+                                    break;
+                                case 101://bookcase
+                                    height = 4;
+                                    break;
+                                default://3X2
+                                    break;
+                            }
+                            for (int i = baseStart; i <= baseEnd; i++)
+                            {
+                                if (Main.tile[X + i, Y - height].active() && breakableBottom[Main.tile[X + i, Y - height].type])
+                                    logEdit(0, Main.tile[X + i, Y - height], X + i, Y - height, 0, account);
+                            }
+                        }
+                        if (tileType == 11) tileType = 10;
+                        Queue(account, X, Y, 0, tileType, pStyle, Main.tile[X, Y].color());
+                    }
+                    break;
+                case 1://add tile
+                    if ((!Main.tile[X, Y].active() || Main.tileCut[Main.tile[X, Y].type]) && type != 127)
+                    {
+                        Queue(account, X, Y, 1, type, style);
+                    }
+                    break;
+                case 2://del wall
+                    if (Main.tile[X, Y].wall != 0)
+                    {
+                        //break things on walls
+                        if (Main.tile[X, Y].active() && breakableWall[Main.tile[X, Y].type])
+                            logEdit(0, tile, X, Y, 0, account);
+                        Queue(account, X, Y, 2, Main.tile[X, Y].wall, 0, Main.tile[X, Y].wallColor());
+                    }
+                    break;
+                case 3://add wall
+                    if (Main.tile[X, Y].wall == 0)
+                    {
+                        Queue(account, X, Y, 3, type);
+                    }
+                    break;
+                case 5:
+                    if (!Main.tile[X, Y].wire())
+                    {
+                        Queue(account, X, Y, 5);
+                    }
+                    break;
+                case 6:
+                    if (Main.tile[X, Y].wire())
+                    {
+                        Queue(account, X, Y, 6);
+                    }
+                    break;
+                case 8:
+                    if (!Main.tile[X, Y].actuator())
+                    {
+                        Queue(account, X, Y, 8);
+                    }
+                    break;
+                case 9:
+                    if (Main.tile[X, Y].actuator())
+                    {
+                        Queue(account, X, Y, 9);
+                    }
+                    break;
+                case 10:
+                    if (!Main.tile[X, Y].wire2())
+                    {
+                        Queue(account, X, Y, 10);
+                    }
+                    break;
+                case 11:
+                    if (Main.tile[X, Y].wire2())
+                    {
+                        Queue(account, X, Y, 11);
+                    }
+                    break;
+                case 12:
+                    if (!Main.tile[X, Y].wire3())
+                    {
+                        Queue(account, X, Y, 12);
+                    }
+                    break;
+                case 13:
+                    if (Main.tile[X, Y].wire3())
+                    {
+                        Queue(account, X, Y, 13);
+                    }
+                    break;
+            }
         }
 
         void OnGetData(GetDataEventArgs e)
         {
-            if (!e.Handled && e.MsgID == PacketTypes.Tile)
+            if (!e.Handled)
             {
-                int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
-                int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
-
-                if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
+                if (e.MsgID == PacketTypes.Tile)
                 {
-                    if (AwaitingHistory[e.Msg.whoAmI])
+                    byte etype = e.Msg.readBuffer[e.Index];
+                    int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
+                    int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
+                    byte type = e.Msg.readBuffer[e.Index + 9];
+                    byte style = e.Msg.readBuffer[e.Index + 10];
+
+                    if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
                     {
-                        AwaitingHistory[e.Msg.whoAmI] = false;
-                        TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-                        CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-                        e.Handled = true;
-                    }
-                    else if (TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]))
-                    {
-                        string account = TShock.Players[e.Msg.whoAmI].UserAccountName;
-                        switch (e.Msg.readBuffer[e.Index])
+                        if (AwaitingHistory[e.Msg.whoAmI])
                         {
-                            case 0:
-                            case 4:
-                                if (!Main.tileCut[Main.tile[X, Y].type] && Main.tile[X, Y].type != 127 &&
-                                    Main.tile[X, Y].active() && e.Msg.readBuffer[e.Index + 9] == 0 && !Main.tileFrameImportant[Main.tile[X, Y].type])
-                                {
-                                    Queue(account, X, Y, 0, Main.tile[X, Y].type);
-                                }
-                                break;
-                            case 1:
-                                if ((!Main.tile[X, Y].active() || Main.tileCut[Main.tile[X, Y].type]) && e.Msg.readBuffer[e.Index + 9] != 127
-                                    && !Main.tileFrameImportant[e.Msg.readBuffer[e.Index + 9]])
-                                {
-                                    Queue(account, X, Y, 1, e.Msg.readBuffer[e.Index + 9]);
-                                }
-                                break;
-                            case 2:
-                                if (Main.tile[X, Y].wall != 0)
-                                {
-                                    Queue(account, X, Y, 2, Main.tile[X, Y].wall);
-                                }
-                                break;
-                            case 3:
-                                if (Main.tile[X, Y].wall == 0)
-                                {
-                                    Queue(account, X, Y, 3, e.Msg.readBuffer[e.Index + 9]);
-                                }
-                                break;
-                            case 5:
-                                if (Main.tile[X, Y].wire())
-                                {
-                                    Queue(account, X, Y, 5);
-                                }
-                                break;
-                            case 6:
-                                if (!Main.tile[X, Y].wire())
-                                {
-                                    Queue(account, X, Y, 6);
-                                }
-                                break;
+                            AwaitingHistory[e.Msg.whoAmI] = false;
+                            TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
+                            CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
+                            e.Handled = true;
+                        }
+                        else if (TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]))
+                        {
+                            //effect only
+                            if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
+                                return;
+                            logEdit(etype, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].UserAccountName, style);
+                        }
+                    }
+                }
+                //chest delete
+                else if (e.MsgID == PacketTypes.TileKill)
+                {
+                    int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index);
+                    int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
+                    if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
+                    {
+                        if (TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]) && Main.tile[X, Y].type == 21)//chest kill!
+                        {
+                            byte style = 0;
+                            adjustFurniture(ref X, ref Y, ref style);
+                            Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 0, Main.tile[X, Y].type, style, Main.tile[X, Y].color());
                         }
                     }
                 }
@@ -226,6 +772,8 @@ namespace History
                 new SqlColumn("Action", MySqlDbType.Int32),
                 new SqlColumn("XY", MySqlDbType.Int32),
                 new SqlColumn("Data", MySqlDbType.Int32),
+                new SqlColumn("Style", MySqlDbType.Int32),
+                new SqlColumn("Paint", MySqlDbType.Int32),
                 new SqlColumn("WorldID", MySqlDbType.Int32)));
 
             string datePath = Path.Combine(TShock.SavePath, "date.dat");
@@ -258,16 +806,16 @@ namespace History
             }
             while (!Netplay.disconnect)
             {
-				HCommand command = CommandQueue.Take();
-				try
-				{
-					command.Execute();
-				}
-				catch (Exception ex)
-				{
-					command.Error("An error occurred. Check the logs for more details.");
-					Log.ConsoleError(ex.ToString());
-				}
+                HCommand command = CommandQueue.Take();
+                try
+                {
+                    command.Execute();
+                }
+                catch (Exception ex)
+                {
+                    command.Error("An error occurred. Check the logs for more details.");
+                    Log.ConsoleError(ex.ToString());
+                }
             }
         }
 
@@ -295,7 +843,7 @@ namespace History
             }
             else
             {
-                CommandQueue.Add(new RollbackCommand(e.Parameters[0],  time, radius, e.Player, true));
+                CommandQueue.Add(new RollbackCommand(e.Parameters[0], time, radius, e.Player, true));
             }
         }
         void Rollback(CommandArgs e)
