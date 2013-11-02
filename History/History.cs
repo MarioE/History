@@ -712,7 +712,7 @@ namespace History
                             CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
                             e.Handled = true;
                         }
-                        else if (TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]))
+                        else if (TShock.Players[e.Msg.whoAmI].Group.HasPermission(Permissions.editregion) || TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]))
                         {
                             //effect only
                             if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
@@ -728,7 +728,7 @@ namespace History
                     int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
                     if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
                     {
-                        if (TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]) && Main.tile[X, Y].type == 21)//chest kill!
+                        if ((TShock.Players[e.Msg.whoAmI].Group.HasPermission(Permissions.editregion) || TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI])) && Main.tile[X, Y].type == 21)//chest kill!
                         {
                             byte style = 0;
                             adjustFurniture(ref X, ref Y, ref style);
