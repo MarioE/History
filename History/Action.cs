@@ -72,45 +72,59 @@ namespace History
                     if (!Main.tile[x, y].actuator())
                     {
                         WorldGen.PlaceActuator(x, y);
-                        NetMessage.SendData(17, -1, -1, "", 9, x, y);
+                        TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
                 case 9://killactuator
                     if (Main.tile[x, y].actuator())
                     {
                         WorldGen.KillActuator(x, y);
-                        NetMessage.SendData(17, -1, -1, "", 8, x, y);
+                        TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
                 case 10://placewire2
                     if (!Main.tile[x, y].wire2())
                     {
                         WorldGen.PlaceWire2(x, y);
-                        NetMessage.SendData(17, -1, -1, "", 11, x, y);
+                        TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
                 case 11://killwire2
                     if (Main.tile[x, y].wire2())
                     {
                         WorldGen.KillWire2(x, y);
-                        NetMessage.SendData(17, -1, -1, "", 10, x, y);
+                        TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
                 case 12://placewire3
                     if (!Main.tile[x, y].wire3())
                     {
                         WorldGen.PlaceWire3(x, y);
-                        NetMessage.SendData(17, -1, -1, "", 13, x, y);
+                        TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
                 case 13://killwire3
                     if (Main.tile[x, y].wire3())
                     {
                         WorldGen.KillWire3(x, y);
-                        NetMessage.SendData(17, -1, -1, "", 12, x, y);
+                        TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
                 //case 14://slopetile
+                case 25://paint tile
+                    if (Main.tile[x, y].active())
+                    {
+                        Main.tile[x, y].color(data);
+                        NetMessage.SendData(63, -1, -1, "", x, y, data, 0f, 0);
+                    }
+                    break;
+                case 26://paint wall
+                    if (Main.tile[x, y].wall > 0)
+                    {
+                        Main.tile[x, y].wallColor(data);
+                        NetMessage.SendData(64, -1, -1, "", x, y, data, 0f, 0);
+                    }
+                    break;
             }
         }
         public void Rollback()
@@ -253,6 +267,20 @@ namespace History
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
+                case 25://paint tile
+                    if (Main.tile[x, y].active())
+                    {
+                        Main.tile[x, y].color(paint);
+                        NetMessage.SendData(63, -1, -1, "", x, y, paint, 0f, 0);
+                    }
+                    break;
+                case 26://paint wall
+                    if (Main.tile[x, y].wall > 0)
+                    {
+                        Main.tile[x, y].wallColor(paint);
+                        NetMessage.SendData(64, -1, -1, "", x, y, paint, 0f, 0);
+                    }
+                    break;
             }
         }
         public override string ToString()
@@ -304,6 +332,9 @@ namespace History
                     return string.Format("{0} {1} placed actuator. ({2})",date, account, dhms);
                 case 9:
                     return string.Format("{0} {1} broke actuator. ({2})", date, account, dhms);
+                case 25:
+                case 26:
+                    return string.Format("{0} {1} painted tile/wall. ({2})", date, account, dhms);
                 default:
                     return "";
             }

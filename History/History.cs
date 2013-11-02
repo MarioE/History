@@ -565,7 +565,10 @@ namespace History
             breakableWall[245] = true;
             breakableWall[246] = true;
         }
-
+        bool regionCheck(TSPlayer who, int x, int y)
+        {
+            return who.Group.HasPermission(Permissions.editregion) || TShock.Regions.CanBuild(x, y, who);
+        }
         void logEdit(byte etype, Tile tile, int X, int Y, byte type, string account, byte style = 0)
         {
             switch (etype)
@@ -712,7 +715,7 @@ namespace History
                             CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
                             e.Handled = true;
                         }
-                        else if (TShock.Players[e.Msg.whoAmI].Group.HasPermission(Permissions.editregion) || TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI]))
+                        else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
                         {
                             //effect only
                             if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
@@ -728,12 +731,32 @@ namespace History
                     int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
                     if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
                     {
-                        if ((TShock.Players[e.Msg.whoAmI].Group.HasPermission(Permissions.editregion) || TShock.Regions.CanBuild(X, Y, TShock.Players[e.Msg.whoAmI])) && Main.tile[X, Y].type == 21)//chest kill!
+                        if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y) && Main.tile[X, Y].type == 21)//chest kill!
                         {
                             byte style = 0;
                             adjustFurniture(ref X, ref Y, ref style);
                             Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 0, Main.tile[X, Y].type, style, Main.tile[X, Y].color());
                         }
+                    }
+                }
+                else if (e.MsgID == PacketTypes.PaintTile)
+                {
+                    int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index);
+                    int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
+                    byte color = e.Msg.readBuffer[e.Index + 9];
+                    if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
+                    {
+                        Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 25, color, 0, Main.tile[X, Y].color());
+                    }
+                }
+                else if (e.MsgID == PacketTypes.PaintWall)
+                {
+                    int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index);
+                    int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
+                    byte color = e.Msg.readBuffer[e.Index + 9];
+                    if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
+                    {
+                        Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 26, color, 0, Main.tile[X, Y].wallColor());
                     }
                 }
             }
