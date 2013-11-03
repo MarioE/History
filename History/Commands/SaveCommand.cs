@@ -69,7 +69,7 @@ namespace History.Commands
                             {
                                 command.AddParameter("@" + i, null);
                             }
-                            command.Parameters[5].Value = Main.worldID;
+                            command.Parameters[7].Value = Main.worldID;
 
                             foreach (Action a in actions)
                             {
