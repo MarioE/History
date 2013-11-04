@@ -279,6 +279,7 @@ namespace History
                 case 85:
                 case 55:
                 case 245:
+                case 15:
                 case 10:
                 case 11:// (0,1) DOOR, IGNORE FRAMEX*18 for 10
                     dest = new Vector2(0, 1);
@@ -569,7 +570,7 @@ namespace History
         {
             return who.Group.HasPermission(Permissions.editregion) || TShock.Regions.CanBuild(x, y, who);
         }
-        void logEdit(byte etype, Tile tile, int X, int Y, byte type, string account, byte style = 0)
+        void logEdit(byte etype, Tile tile, int X, int Y, byte type, string account, List<Vector2> done, byte style = 0)
         {
             switch (etype)
             {
@@ -577,53 +578,107 @@ namespace History
                 case 4://del tile
                     byte tileType = Main.tile[X, Y].type;
                     byte pStyle = 0;
-                    if (Main.tile[X, Y].active() && (Main.tileSolid[tileType] || Main.tileFrameImportant[tileType]) && !Main.tileCut[tileType] && tileType != 127)
+                    if (Main.tile[X, Y].active() && !Main.tileCut[tileType] && tileType != 127)
                     {
                         adjustFurniture(ref X, ref Y, ref pStyle);
-                        if (Main.tileSolid[tileType] && tileType != 10 && tileType != 138)
+                        //Don't repeat the same tile, and it is possible to create something that breaks thousands of tiles with one edit, is this a sane limit?
+                        if (done.Contains(new Vector2(X, Y)) || done.Count>2000)
+                            return;
+                        done.Add(new Vector2(X, Y));
+                        //TODO: Sand falling from a solid tile broken below
+                        switch (tileType)
                         {
-                            //Finish Implementing the few solid tiles which are bottom breakable, need different breaking areas.
-                            //teleporter 235
-                            //boulder 138
-                            //bars 239
-                            //Prevent multiple edits of a large object on a large surface object (mostly tables)
-                            if (Main.tile[X, Y - 1].active() && breakableBottom[Main.tile[X, Y - 1].type])
-                                logEdit(0, Main.tile[X, Y - 1], X, Y - 1, 0, account);
-                            if (Main.tile[X, Y + 1].active() && breakableTop[Main.tile[X, Y + 1].type])
-                                logEdit(0, Main.tile[X, Y + 1], X, Y + 1, 0, account);
-                            if (Main.tile[X - 1, Y].active() && breakableSides[Main.tile[X - 1, Y].type])
-                                logEdit(0, Main.tile[X - 1, Y], X - 1, Y, 0, account);
-                            if (Main.tile[X + 1, Y].active() && breakableSides[Main.tile[X + 1, Y].type])
-                                logEdit(0, Main.tile[X + 1, Y], X + 1, Y, 0, account);
+                            case 10://doors don't break anything anyway
+                            case 11://close open doors
+                                tileType = 10;
+                                break;
+                            case 124://wooden beam, breaks sides only
+                                if (Main.tile[X - 1, Y].active() && breakableSides[Main.tile[X - 1, Y].type])
+                                    logEdit(0, Main.tile[X - 1, Y], X - 1, Y, 0, account, done);
+                                if (Main.tile[X + 1, Y].active() && breakableSides[Main.tile[X + 1, Y].type])
+                                    logEdit(0, Main.tile[X + 1, Y], X + 1, Y, 0, account, done);
+                                break;
+                            case 138://boulder, 2x2
+                                for (int i = -1; i <= 0; i++)
+                                    if (Main.tile[X + i, Y - 2].active() && breakableBottom[Main.tile[X + i, Y - 2].type])
+                                        logEdit(0, Main.tile[X + i, Y - 2], X + i, Y - 2, 0, account, done);
+                                for (int i = -1; i <= 0; i++)
+                                {
+                                    if (Main.tile[X - 2, Y + i].active() && breakableSides[Main.tile[X - 2, Y + i].type])
+                                        logEdit(0, Main.tile[X - 2, Y + i], X - 2, Y + i, 0, account, done);
+                                    if (Main.tile[X, Y + i].active() && breakableSides[Main.tile[X, Y + i].type])
+                                        logEdit(0, Main.tile[X, Y + i], X, Y + i, 0, account, done);
+                                }
+                                break;
+                            case 235://teleporter, 3x1
+                                for (int i = -1; i <= 1; i++)
+                                    if (Main.tile[X + i, Y - 1].active() && breakableBottom[Main.tile[X + i, Y - 1].type])
+                                        logEdit(0, Main.tile[X + i, Y - 1], X + i, Y - 1, 0, account, done);
+                                if (Main.tile[X - 2, Y].active() && breakableSides[Main.tile[X - 2, Y].type])
+                                    logEdit(0, Main.tile[X - 2, Y], X - 2, Y, 0, account, done);
+                                if (Main.tile[X + 2, Y].active() && breakableSides[Main.tile[X + 2, Y].type])
+                                    logEdit(0, Main.tile[X + 2, Y], X + 2, Y, 0, account, done);
+                                break;
+                            case 239://bars
+                                int topY = Y;//Find top of stack
+                                while (topY >= 0 && Main.tile[X, topY].active() && Main.tile[X, topY].type == 239)
+                                    topY--;
+                                //Break anything at top
+                                if (Main.tile[X, topY].active() && breakableBottom[Main.tile[X, topY].type])
+                                    logEdit(0, Main.tile[X, topY], X, topY, 0, account, done);
+                                topY++;
+                                while (topY <= Y)
+                                {
+                                    //log from top of stack down, so reverting goes bottom->top
+                                    if (Main.tile[X - 1, topY].active() && breakableSides[Main.tile[X - 1, topY].type])
+                                        logEdit(0, Main.tile[X - 1, topY], X - 1, topY, 0, account, done);
+                                    if (Main.tile[X + 1, topY].active() && breakableSides[Main.tile[X + 1, topY].type])
+                                        logEdit(0, Main.tile[X + 1, topY], X + 1, topY, 0, account, done);
+                                    Queue(account, X, topY, 0, 239, pStyle, Main.tile[X, Y].color());
+                                    topY++;
+                                }
+                                return;
+                            default:
+                                if (Main.tileSolid[tileType])
+                                {
+                                    if (Main.tile[X, Y - 1].active() && breakableBottom[Main.tile[X, Y - 1].type])
+                                        logEdit(0, Main.tile[X, Y - 1], X, Y - 1, 0, account, done);
+                                    if (Main.tile[X, Y + 1].active() && breakableTop[Main.tile[X, Y + 1].type])
+                                        logEdit(0, Main.tile[X, Y + 1], X, Y + 1, 0, account, done);
+                                    if (Main.tile[X - 1, Y].active() && breakableSides[Main.tile[X - 1, Y].type])
+                                        logEdit(0, Main.tile[X - 1, Y], X - 1, Y, 0, account, done);
+                                    if (Main.tile[X + 1, Y].active() && breakableSides[Main.tile[X + 1, Y].type])
+                                        logEdit(0, Main.tile[X + 1, Y], X + 1, Y, 0, account, done);
+                                }
+                                else if (Main.tileTable[tileType])
+                                {
+                                    int baseStart = -1;
+                                    int baseEnd = 1;
+                                    int height = 2;
+                                    switch (tileType)
+                                    {
+                                        case 18://workbench
+                                            baseStart = 0;
+                                            height = 1;
+                                            break;
+                                        case 19://platform
+                                            baseStart = baseEnd = 0;
+                                            height = 1;
+                                            break;
+                                        case 101://bookcase
+                                            height = 4;
+                                            break;
+                                        default://3X2
+                                            break;
+                                    }
+                                    for (int i = baseStart; i <= baseEnd; i++)
+                                    {
+                                        if (Main.tile[X + i, Y - height].active() && breakableBottom[Main.tile[X + i, Y - height].type])
+                                            logEdit(0, Main.tile[X + i, Y - height], X + i, Y - height, 0, account, done);
+                                    }
+                                }
+                                break;
                         }
-                        else if (Main.tileTable[tileType])
-                        {
-                            int baseStart = -1;
-                            int baseEnd = 1;
-                            int height = 2;
-                            switch (tileType)
-                            {
-                                case 18://workbench
-                                    baseStart = 0;
-                                    height = 1;
-                                    break;
-                                case 19://platform
-                                    baseStart = baseEnd = 0;
-                                    height = 1;
-                                    break;
-                                case 101://bookcase
-                                    height = 4;
-                                    break;
-                                default://3X2
-                                    break;
-                            }
-                            for (int i = baseStart; i <= baseEnd; i++)
-                            {
-                                if (Main.tile[X + i, Y - height].active() && breakableBottom[Main.tile[X + i, Y - height].type])
-                                    logEdit(0, Main.tile[X + i, Y - height], X + i, Y - height, 0, account);
-                            }
-                        }
-                        if (tileType == 11) tileType = 10;
                         Queue(account, X, Y, 0, tileType, pStyle, Main.tile[X, Y].color());
                     }
                     break;
@@ -638,7 +693,7 @@ namespace History
                     {
                         //break things on walls
                         if (Main.tile[X, Y].active() && breakableWall[Main.tile[X, Y].type])
-                            logEdit(0, tile, X, Y, 0, account);
+                            logEdit(0, tile, X, Y, 0, account, done);
                         Queue(account, X, Y, 2, Main.tile[X, Y].wall, 0, Main.tile[X, Y].wallColor());
                     }
                     break;
@@ -725,7 +780,7 @@ namespace History
                             //effect only
                             if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
                                 return;
-                            logEdit(etype, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].UserAccountName, style);
+                            logEdit(etype, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].UserAccountName, new List<Vector2>(), style);
                         }
                     }
                 }
