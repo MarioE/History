@@ -580,8 +580,13 @@ namespace History
                     if (Main.tile[X, Y].active() && (Main.tileSolid[tileType] || Main.tileFrameImportant[tileType]) && !Main.tileCut[tileType] && tileType != 127)
                     {
                         adjustFurniture(ref X, ref Y, ref pStyle);
-                        if (Main.tileSolid[tileType] && tileType != 10)
+                        if (Main.tileSolid[tileType] && tileType != 10 && tileType != 138)
                         {
+                            //Finish Implementing the few solid tiles which are bottom breakable, need different breaking areas.
+                            //teleporter 235
+                            //boulder 138
+                            //bars 239
+                            //Prevent multiple edits of a large object on a large surface object (mostly tables)
                             if (Main.tile[X, Y - 1].active() && breakableBottom[Main.tile[X, Y - 1].type])
                                 logEdit(0, Main.tile[X, Y - 1], X, Y - 1, 0, account);
                             if (Main.tile[X, Y + 1].active() && breakableTop[Main.tile[X, Y + 1].type])
