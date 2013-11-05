@@ -167,7 +167,7 @@ namespace History
                             goto done;
                     }
                 done:
-                    Main.tile[x, y].color(paint); //TODO: painting furniture would be good too
+                    History.paintFurniture(data, x, y, paint);
                     //Send larger area for furniture
                     if (Main.tileFrameImportant[data])
                         TSPlayer.All.SendTileSquare(x, y, 8);

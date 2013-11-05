@@ -127,7 +127,7 @@ namespace History
             }
             Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y, paint = paint, style = style });
         }
-        void getPlaceData(byte type, ref int which, ref int div)
+        static void getPlaceData(byte type, ref int which, ref int div)
         {
             switch (type)
             {
@@ -258,7 +258,7 @@ namespace History
                     break;
             }
         }
-        Vector2 destFrame(byte type)
+        static Vector2 destFrame(byte type)
         {
             Vector2 dest;
             switch (type)//(x,y) is from top left
@@ -278,6 +278,7 @@ namespace History
                 case 21:
                 case 85:
                 case 55:
+                case 216:
                 case 245:
                 case 15:
                 case 10:
@@ -366,7 +367,126 @@ namespace History
             }
             return dest;
         }
-        void adjustFurniture(ref int x, ref int y, ref byte style)
+        static Vector2 furnitureDimensions(byte type)
+        {
+            Vector2 dim = new Vector2(0, 0);
+            switch (type)
+            {
+                case 15:
+                case 20:
+                case 42:
+                case 216:
+                    dim = new Vector2(0, 1);
+                    break;
+                case 91:
+                case 93:
+                    dim = new Vector2(0, 2);
+                    break;
+                case 92:
+                    dim = new Vector2(0, 5);
+                    break;
+                case 16:
+                case 18: 
+                case 29: 
+                case 103: 
+                case 134:
+                    dim = new Vector2(1, 0);
+                    break;
+                case 21:
+                case 35:
+                case 55:
+                case 85:
+                case 94:
+                case 95:
+                case 96:
+                case 97:
+                case 98:
+                case 99:
+                case 100:
+                case 125:
+                case 126:
+                case 132:
+                case 138:
+                case 139:
+                case 142:
+                case 143:
+                case 173:
+                case 254:
+                    dim = new Vector2(1, 1);
+                    break;
+                case 128:
+                case 245:
+                    dim = new Vector2(1, 2);
+                    break;
+                case 105:
+                    dim = new Vector2(1, 2);
+                    break;
+                case 27:
+                case 207:
+                    dim = new Vector2(1, 3);
+                    break;
+                case 104:
+                    dim = new Vector2(1, 4);
+                    break;
+                case 10:
+                    dim = new Vector2(0, 2);
+                    break;
+                case 14:
+                case 17:
+                case 26: 
+                case 77:
+                case 86:
+                case 87:
+                case 88:
+                case 89:
+                case 114:
+                case 133:
+                case 186:
+                case 187:
+                case 215:
+                case 217:
+                case 218:
+                case 237:
+                case 244:
+                case 246:
+                    dim = new Vector2(2, 1);
+                    break;
+                case 235:
+                    dim = new Vector2(2, 0);
+                    break;
+                case 34:
+                case 106:
+                case 212:
+                case 219:
+                case 220:
+                case 228:
+                case 231:
+                case 240:
+                case 243:
+                case 247:
+                    dim = new Vector2(2, 2);
+                    break;
+                case 101:
+                case 102:
+                    dim = new Vector2(2, 3);
+                    break;
+                case 79:
+                case 90:
+                    dim = new Vector2(3, 1);
+                    break;
+                case 209:
+                case 241:
+                    dim = new Vector2(3, 2);
+                    break;
+                case 242:
+                    dim = new Vector2(5, 3);
+                    break;
+                default:
+                    break;
+            }
+            return dim;
+        }
+        static void adjustFurniture(ref int x, ref int y, ref byte style)
         {
             int which = 10;
             int div = 1;
@@ -450,6 +570,21 @@ namespace History
                 }
                 x += ((int)dest.X - relx);
                 y += ((int)dest.Y - rely);
+            }
+        }
+        public static void paintFurniture(byte type, int x, int y, byte paint)
+        {
+            Vector2 dest = destFrame(type);
+            Vector2 size = furnitureDimensions(type);
+            //no destination
+            if (dest.X < 0)
+                dest = new Vector2(0, 0);
+            for (int j = (int)(x - dest.X); j <= (x - dest.X + size.X); j++)
+            {
+                for (int k = (int)(y - dest.Y); k <= (y - dest.Y + size.Y); k++)
+                {
+                    Main.tile[j, k].color(paint);
+                }
             }
         }
 
