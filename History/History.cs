@@ -907,6 +907,9 @@ namespace History
                         {
                             AwaitingHistory[e.Msg.whoAmI] = false;
                             TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
+                            //See furniture edits on delete only
+                            if (type == 0 && (etype==0 || etype==4))
+                                adjustFurniture(ref X, ref Y, ref style);
                             CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
                             e.Handled = true;
                         }
