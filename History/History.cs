@@ -769,7 +769,7 @@ namespace History
                                         logEdit(0, Main.tile[X - 1, topY], X - 1, topY, 0, account, done);
                                     if (Main.tile[X + 1, topY].active() && breakableSides[Main.tile[X + 1, topY].type])
                                         logEdit(0, Main.tile[X + 1, topY], X + 1, topY, 0, account, done);
-                                    Queue(account, X, topY, 0, 239, pStyle, Main.tile[X, Y].color());
+                                    Queue(account, X, topY, 0, 239, pStyle, Main.tile[X, topY].color());
                                     topY++;
                                 }
                                 return;
