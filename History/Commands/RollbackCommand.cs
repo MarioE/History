@@ -46,7 +46,7 @@ namespace History.Commands
                     actions.Add(new Action
                     {
                         action = (byte)reader.Get<int>("Action"),
-                        data = (byte)reader.Get<int>("Data"),
+                        data = (ushort)reader.Get<int>("Data"),
                         style = (byte)reader.Get<int>("Style"),
                         paint = (byte)reader.Get<int>("Paint"),
                         x = reader.Get<int>("XY") >> 16,

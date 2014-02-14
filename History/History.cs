@@ -18,7 +18,7 @@ using TShockAPI.DB;
 
 namespace History
 {
-    [ApiVersion(1, 14)]
+    [ApiVersion(1, 15)]
     public class History : TerrariaPlugin
     {
         public static List<Action> Actions = new List<Action>(SaveCount);
@@ -118,7 +118,7 @@ namespace History
             ServerApi.Hooks.WorldSave.Register(this, OnSaveWorld);
             initBreaks();
         }
-        void Queue(string account, int X, int Y, byte action, byte data = 0, byte style = 0, byte paint = 0)
+        void Queue(string account, int X, int Y, byte action, ushort data = 0, byte style = 0, byte paint = 0)
         {
             if (Actions.Count == SaveCount)
             {
@@ -127,7 +127,7 @@ namespace History
             }
             Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y, paint = paint, style = style });
         }
-        static void getPlaceData(byte type, ref int which, ref int div)
+        static void getPlaceData(ushort type, ref int which, ref int div)
         {
             switch (type)
             {
@@ -182,6 +182,7 @@ namespace History
                 case 207:// water fountains
                 case 245: //2x3 wall picture
                 case 254:
+                case 269:
                     which = 0;
                     div = 36;
                     break;
@@ -191,6 +192,8 @@ namespace History
                 case 90://bathtub (orient)
                 case 139://music box
                 case 246:// 3x2 wall painting
+                case 270:
+                case 271:
                     which = 1;
                     div = 36;
                     break;
@@ -215,6 +218,11 @@ namespace History
                 case 218:
                 case 237:
                 case 244:
+                case 285:
+                case 286:
+                case 298:
+                case 299:
+                case 310:
                 case 36:
                 case 106:
                 case 170:
@@ -227,6 +235,16 @@ namespace History
                 case 231:
                 case 243:
                 case 247:
+                case 283:
+                case 300:
+                case 301:
+                case 302:
+                case 303:
+                case 304:
+                case 305:
+                case 306:
+                case 307:
+                case 308:
                 case 77:
                 case 101:
                 case 102:
@@ -258,7 +276,7 @@ namespace History
                     break;
             }
         }
-        static Vector2 destFrame(byte type)
+        static Vector2 destFrame(ushort type)
         {
             Vector2 dest;
             switch (type)//(x,y) is from top left
@@ -269,6 +287,8 @@ namespace History
                 case 29:
                 case 103:
                 case 134:
+                case 270:
+                case 271:
                 case 91: // (0,0)
                     dest = new Vector2(0, 0);
                     break;
@@ -296,6 +316,15 @@ namespace History
                 case 138:
                 case 142:
                 case 143:
+                case 282:
+                case 288:
+                case 289:
+                case 290:
+                case 291:
+                case 292:
+                case 293:
+                case 294:
+                case 295:
                 case 94:
                 case 79:
                 case 90:
@@ -325,6 +354,12 @@ namespace History
                 case 218:
                 case 237:
                 case 244:
+                case 285:
+                case 286:
+                case 287:
+                case 298:
+                case 299:
+                case 310:
                 case 173:// (1,1)
                     dest = new Vector2(1, 1);
                     break;
@@ -337,6 +372,16 @@ namespace History
                 case 243:
                 case 209:
                 case 247:// (1,2)
+                case 283:
+                case 300:
+                case 301:
+                case 302:
+                case 303:
+                case 304:
+                case 305:
+                case 306:
+                case 307:
+                case 308:
                     dest = new Vector2(1, 2);
                     break;
                 case 101:
@@ -348,6 +393,7 @@ namespace History
                     break;
                 case 128:
                 case 105:
+                case 269:
                 case 93: // (0,2)
                     dest = new Vector2(0, 2);
                     break;
@@ -361,13 +407,22 @@ namespace History
                 case 92: // (0,5)
                     dest = new Vector2(0, 5);
                     break;
+                case 275:
+                case 276:
+                case 277:
+                case 278:
+                case 279:
+                case 280:
+                case 281:// (1,3)
+                    dest = new Vector2(1, 3);
+                    break;
                 default:
                     dest = new Vector2(-1, -1);
                     break;
             }
             return dest;
         }
-        static Vector2 furnitureDimensions(byte type)
+        static Vector2 furnitureDimensions(ushort type)
         {
             Vector2 dim = new Vector2(0, 0);
             switch (type)
@@ -376,6 +431,8 @@ namespace History
                 case 20:
                 case 42:
                 case 216:
+                case 270://top
+                case 271://top
                     dim = new Vector2(0, 1);
                     break;
                 case 91:
@@ -386,9 +443,9 @@ namespace History
                     dim = new Vector2(0, 5);
                     break;
                 case 16:
-                case 18: 
-                case 29: 
-                case 103: 
+                case 18:
+                case 29:
+                case 103:
                 case 134:
                     dim = new Vector2(1, 0);
                     break;
@@ -412,10 +469,12 @@ namespace History
                 case 143:
                 case 173:
                 case 254:
+                case 287:
                     dim = new Vector2(1, 1);
                     break;
                 case 128:
                 case 245:
+                case 269:
                     dim = new Vector2(1, 2);
                     break;
                 case 105:
@@ -433,7 +492,7 @@ namespace History
                     break;
                 case 14:
                 case 17:
-                case 26: 
+                case 26:
                 case 77:
                 case 86:
                 case 87:
@@ -449,6 +508,11 @@ namespace History
                 case 237:
                 case 244:
                 case 246:
+                case 285:
+                case 286:
+                case 298:
+                case 299:
+                case 310:
                     dim = new Vector2(2, 1);
                     break;
                 case 235:
@@ -464,6 +528,16 @@ namespace History
                 case 240:
                 case 243:
                 case 247:
+                case 283:
+                case 300:
+                case 301:
+                case 302:
+                case 303:
+                case 304:
+                case 305:
+                case 306:
+                case 307:
+                case 308:
                     dim = new Vector2(2, 2);
                     break;
                 case 101:
@@ -477,6 +551,18 @@ namespace History
                 case 209:
                 case 241:
                     dim = new Vector2(3, 2);
+                    break;
+                case 275:
+                case 276:
+                case 277:
+                case 278:
+                case 279:
+                case 280:
+                case 281:
+                case 296:
+                case 297:
+                case 309:
+                    dim = new Vector2(5, 2);
                     break;
                 case 242:
                     dim = new Vector2(5, 3);
@@ -572,7 +658,7 @@ namespace History
                 y += ((int)dest.Y - rely);
             }
         }
-        public static void paintFurniture(byte type, int x, int y, byte paint)
+        public static void paintFurniture(ushort type, int x, int y, byte paint)
         {
             Vector2 dest = destFrame(type);
             Vector2 size = furnitureDimensions(type);
@@ -588,10 +674,10 @@ namespace History
             }
         }
 
-        bool[] breakableBottom = new bool[255];
-        bool[] breakableTop = new bool[255];
-        bool[] breakableSides = new bool[255];
-        bool[] breakableWall = new bool[255];
+        bool[] breakableBottom = new bool[Main.maxTileSets];
+        bool[] breakableTop = new bool[Main.maxTileSets];
+        bool[] breakableSides = new bool[Main.maxTileSets];
+        bool[] breakableWall = new bool[Main.maxTileSets];
         void initBreaks()
         {
             breakableBottom[4] = true;
@@ -676,6 +762,32 @@ namespace History
             breakableBottom[244] = true;
             breakableBottom[247] = true;
             breakableBottom[254] = true;
+            breakableBottom[269] = true;
+            breakableBottom[275] = true;
+            breakableBottom[276] = true;
+            breakableBottom[278] = true;
+            breakableBottom[279] = true;
+            breakableBottom[280] = true;
+            breakableBottom[281] = true;
+            breakableBottom[283] = true;
+            breakableBottom[285] = true;
+            breakableBottom[286] = true;
+            breakableBottom[287] = true;
+            breakableBottom[296] = true;
+            breakableBottom[297] = true;
+            breakableBottom[298] = true;
+            breakableBottom[299] = true;
+            breakableBottom[300] = true;
+            breakableBottom[301] = true;
+            breakableBottom[302] = true;
+            breakableBottom[303] = true;
+            breakableBottom[304] = true;
+            breakableBottom[305] = true;
+            breakableBottom[306] = true;
+            breakableBottom[307] = true;
+            breakableBottom[308] = true;
+            breakableBottom[309] = true;
+            breakableBottom[310] = true;
 
             breakableTop[10] = true;
             breakableTop[11] = true;
@@ -687,6 +799,8 @@ namespace History
             breakableTop[126] = true;
             breakableTop[129] = true;
             breakableTop[149] = true;
+            breakableTop[270] = true;
+            breakableTop[271] = true;
 
             breakableSides[4] = true;
             breakableSides[55] = true;
@@ -705,19 +819,19 @@ namespace History
         {
             return who.Group.HasPermission(Permissions.editregion) || TShock.Regions.CanBuild(x, y, who);
         }
-        void logEdit(byte etype, Tile tile, int X, int Y, byte type, string account, List<Vector2> done, byte style = 0)
+        void logEdit(byte etype, Tile tile, int X, int Y, ushort type, string account, List<Vector2> done, byte style = 0)
         {
             switch (etype)
             {
                 case 0:
                 case 4://del tile
-                    byte tileType = Main.tile[X, Y].type;
+                    ushort tileType = Main.tile[X, Y].type;
                     byte pStyle = 0;
                     if (Main.tile[X, Y].active() && !Main.tileCut[tileType] && tileType != 127)
                     {
                         adjustFurniture(ref X, ref Y, ref pStyle);
                         //Don't repeat the same tile, and it is possible to create something that breaks thousands of tiles with one edit, is this a sane limit?
-                        if (done.Contains(new Vector2(X, Y)) || done.Count>2000)
+                        if (done.Contains(new Vector2(X, Y)) || done.Count > 2000)
                             return;
                         done.Add(new Vector2(X, Y));
                         //TODO: Sand falling from a solid tile broken below
@@ -898,9 +1012,8 @@ namespace History
                     byte etype = e.Msg.readBuffer[e.Index];
                     int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
                     int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
-                    byte type = e.Msg.readBuffer[e.Index + 9];
-                    byte style = e.Msg.readBuffer[e.Index + 10];
-
+                    ushort type = BitConverter.ToUInt16(e.Msg.readBuffer, e.Index + 9);
+                    byte style = e.Msg.readBuffer[e.Index + 11];
                     if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
                     {
                         if (AwaitingHistory[e.Msg.whoAmI])
@@ -908,7 +1021,7 @@ namespace History
                             AwaitingHistory[e.Msg.whoAmI] = false;
                             TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
                             //See furniture edits on delete only
-                            if (type == 0 && (etype==0 || etype==4))
+                            if (type == 0 && (etype == 0 || etype == 4))
                                 adjustFurniture(ref X, ref Y, ref style);
                             CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
                             e.Handled = true;
@@ -925,11 +1038,12 @@ namespace History
                 //chest delete
                 else if (e.MsgID == PacketTypes.TileKill)
                 {
-                    int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index);
-                    int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
+                    byte flag = e.Msg.readBuffer[e.Index];
+                    int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
+                    int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
                     if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
                     {
-                        if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y) && Main.tile[X, Y].type == 21)//chest kill!
+                        if (flag == 0 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y) && Main.tile[X, Y].type == 21)//chest kill!
                         {
                             byte style = 0;
                             adjustFurniture(ref X, ref Y, ref style);

@@ -34,7 +34,7 @@ namespace History.Commands
                     {
                         account = reader.Get<string>("Account"),
                         action = (byte)reader.Get<int>("Action"),
-                        data = (byte)reader.Get<int>("Data"),
+                        data = (ushort)(reader.Get<int>("Data")),
                         style = (byte)reader.Get<int>("Style"),
                         paint = (byte)reader.Get<int>("Paint"),
                         time = reader.Get<int>("Time")

@@ -9,7 +9,7 @@ namespace History
     {
         public string account;
         public byte action;
-        public byte data;
+        public ushort data;
         public byte style;
         public byte paint;
         public int time;
@@ -49,7 +49,7 @@ namespace History
                 case 3://add wall
                     if (Main.tile[x, y].wall == 0)
                     {
-                        Main.tile[x, y].wall = data;
+                        Main.tile[x, y].wall = (byte)data;
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
@@ -114,14 +114,14 @@ namespace History
                 case 25://paint tile
                     if (Main.tile[x, y].active())
                     {
-                        Main.tile[x, y].color(data);
+                        Main.tile[x, y].color((byte)data);
                         NetMessage.SendData(63, -1, -1, "", x, y, data, 0f, 0);
                     }
                     break;
                 case 26://paint wall
                     if (Main.tile[x, y].wall > 0)
                     {
-                        Main.tile[x, y].wallColor(data);
+                        Main.tile[x, y].wallColor((byte)data);
                         NetMessage.SendData(64, -1, -1, "", x, y, data, 0f, 0);
                     }
                     break;
@@ -198,7 +198,7 @@ namespace History
                 case 2://del wall
                     if (Main.tile[x, y].wall != data) //change if not what was deleted
                     {
-                        Main.tile[x, y].wall = data;
+                        Main.tile[x, y].wall = (byte)data;
                         Main.tile[x, y].wallColor(paint);
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
