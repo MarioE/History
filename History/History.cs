@@ -152,6 +152,7 @@ namespace History
                     break;
                 case 19:
                 case 135:
+                case 136://switch (state)
                 case 137:
                 case 141:
                 case 210:
@@ -178,6 +179,7 @@ namespace History
                 case 104://grandfather
                 case 105://statues
                 case 128: //manniquin (orient)
+                case 132://lever (state)
                 case 134:
                 case 207:// water fountains
                 case 245: //2x3 wall picture
@@ -812,6 +814,8 @@ namespace History
             breakableSides[149] = true;
 
             breakableWall[4] = true;
+            breakableWall[132] = true;
+            breakableWall[136] = true;
             breakableWall[240] = true;
             breakableWall[241] = true;
             breakableWall[242] = true;
