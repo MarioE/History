@@ -59,7 +59,14 @@ namespace History.Commands
                 History.Database.Query("DELETE FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
                     account, rollbackTime, Main.worldID);
             }
-
+            if (Main.rand == null)
+            {
+                Main.rand = new Random();
+            }
+            if (WorldGen.genRand == null)
+            {
+                WorldGen.genRand = new Random();
+            }
             for (int i = 0; i >= 0 && i < History.Actions.Count ; i++)
             {
                 Action action = History.Actions[i];

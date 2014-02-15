@@ -1135,14 +1135,6 @@ namespace History
 
         void QueueCallback(object t)
         {
-            if (Main.rand == null)
-            {
-                Main.rand = new Random();
-            }
-            if (WorldGen.genRand == null)
-            {
-                WorldGen.genRand = new Random();
-            }
             while (!Netplay.disconnect)
             {
                 HCommand command = CommandQueue.Take();
