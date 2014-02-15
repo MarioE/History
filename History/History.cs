@@ -118,7 +118,7 @@ namespace History
             ServerApi.Hooks.WorldSave.Register(this, OnSaveWorld);
             initBreaks();
         }
-        void Queue(string account, int X, int Y, byte action, ushort data = 0, byte style = 0, byte paint = 0)
+        void Queue(string account, int X, int Y, byte action, ushort data = 0, byte style = 0, short paint = 0)
         {
             if (Actions.Count == SaveCount)
             {
@@ -890,7 +890,7 @@ namespace History
                                         logEdit(0, Main.tile[X - 1, topY], X - 1, topY, 0, account, done);
                                     if (Main.tile[X + 1, topY].active() && breakableSides[Main.tile[X + 1, topY].type])
                                         logEdit(0, Main.tile[X + 1, topY], X + 1, topY, 0, account, done);
-                                    Queue(account, X, topY, 0, 239, pStyle, Main.tile[X, topY].color());
+                                    Queue(account, X, topY, 0, 239, pStyle, (short)(Main.tile[X, topY].color() + ((Main.tile[X, topY].halfBrick() ? 1 : 0) << 7)));
                                     topY++;
                                 }
                                 return;
@@ -935,7 +935,7 @@ namespace History
                                 }
                                 break;
                         }
-                        Queue(account, X, Y, 0, tileType, pStyle, Main.tile[X, Y].color());
+                        Queue(account, X, Y, 0, tileType, pStyle, (short)(Main.tile[X, Y].color() + (Main.tile[X, Y].halfBrick() ? 128 : 0) + (Main.tile[X, Y].slope() << 8)));
                     }
                     break;
                 case 1://add tile
@@ -970,6 +970,9 @@ namespace History
                     {
                         Queue(account, X, Y, 6);
                     }
+                    break;
+                case 7:
+                    Queue(account, X, Y, 7);
                     break;
                 case 8:
                     if (!Main.tile[X, Y].actuator())
@@ -1006,6 +1009,10 @@ namespace History
                     {
                         Queue(account, X, Y, 13);
                     }
+                    break;
+                case 14:
+                    //save previous state of slope
+                    Queue(account, X, Y, 14, type, 0, (short)(((Main.tile[X, Y].halfBrick() ? 1 : 0) << 7) + (Main.tile[X, Y].slope() << 8)));
                     break;
             }
         }

@@ -27,7 +27,6 @@ namespace History.Commands
                 {
                     LastRollBack[i].Rollback();
                 }
-                LastWasReenact = false;
             }
             else
             {

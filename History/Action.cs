@@ -11,7 +11,7 @@ namespace History
         public byte action;
         public ushort data;
         public byte style;
-        public byte paint;
+        public short paint;
         public int time;
         public int x;
         public int y;
@@ -67,7 +67,10 @@ namespace History
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
-                //case 7://poundtile
+                case 7://poundtile
+                    WorldGen.PoundTile(x, y);
+                    TSPlayer.All.SendTileSquare(x, y, 1);
+                    break;
                 case 8://placeactuator
                     if (!Main.tile[x, y].actuator())
                     {
@@ -110,7 +113,10 @@ namespace History
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
-                //case 14://slopetile
+                case 14://slopetile
+                    WorldGen.SlopeTile(x, y, data);
+                    TSPlayer.All.SendTileSquare(x, y, 1);
+                    break;
                 case 25://paint tile
                     if (Main.tile[x, y].active())
                     {
@@ -152,7 +158,7 @@ namespace History
                     else if (data == 2 || data == 23 || data == 60 || data == 70 || data == 109 || data == 199)// grasses need to place manually, not from placeTile
                     {
                         Main.tile[x, y].type = data;
-                        Main.tile[x, y].color(paint);
+                        Main.tile[x, y].color((byte)(paint & 127));
                         Main.tile[x, y].active(true);
                         TSPlayer.All.SendTileSquare(x, y, 1);
                         break;
@@ -160,14 +166,20 @@ namespace History
                     //maybe already repaired?
                     if (Main.tile[x,y].active() && Main.tile[x, y].type == data)
                         break;
-                    //small items can be placed correctly by checking down a bit;
-                    for (int yy = 0; yy <= 2; yy++)
+
+                    WorldGen.PlaceTile(x, y, data, false, true, 0, style: style);
+
+                    History.paintFurniture(data, x, y, (byte)(paint & 127));
+
+                    //restore slopes
+                    if ((paint & 128) == 128)
                     {
-                        if (WorldGen.PlaceTile(x, y + yy, data, false, true, 0, style: style))
-                            goto done;
+                        Main.tile[x, y].halfBrick(true);
                     }
-                done:
-                    History.paintFurniture(data, x, y, paint);
+                    else
+                    {
+                        Main.tile[x, y].slope((byte)(paint >> 8));
+                    }
                     //Send larger area for furniture
                     if (Main.tileFrameImportant[data])
                         TSPlayer.All.SendTileSquare(x, y, 8);
@@ -199,7 +211,7 @@ namespace History
                     if (Main.tile[x, y].wall != data) //change if not what was deleted
                     {
                         Main.tile[x, y].wall = (byte)data;
-                        Main.tile[x, y].wallColor(paint);
+                        Main.tile[x, y].wallColor((byte)paint);
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
@@ -224,7 +236,10 @@ namespace History
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
-                //case 7://poundtile
+                case 7://poundtile
+                    WorldGen.PoundTile(x, y);
+                    TSPlayer.All.SendTileSquare(x, y, 1);
+                    break;
                 case 8://placeactuator
                     if (Main.tile[x, y].actuator())
                     {
@@ -267,17 +282,22 @@ namespace History
                         TSPlayer.All.SendTileSquare(x, y, 1);
                     }
                     break;
+                case 14://slopetile
+                    Main.tile[x, y].slope((byte)(paint >> 8));
+                    Main.tile[x, y].halfBrick((paint & 128) == 128);
+                    TSPlayer.All.SendTileSquare(x, y, 1);
+                    break;
                 case 25://paint tile
                     if (Main.tile[x, y].active())
                     {
-                        Main.tile[x, y].color(paint);
+                        Main.tile[x, y].color((byte)paint);
                         NetMessage.SendData(63, -1, -1, "", x, y, paint, 0f, 0);
                     }
                     break;
                 case 26://paint wall
                     if (Main.tile[x, y].wall > 0)
                     {
-                        Main.tile[x, y].wallColor(paint);
+                        Main.tile[x, y].wallColor((byte)paint);
                         NetMessage.SendData(64, -1, -1, "", x, y, paint, 0f, 0);
                     }
                     break;

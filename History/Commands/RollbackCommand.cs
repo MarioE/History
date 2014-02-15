@@ -49,7 +49,7 @@ namespace History.Commands
                         action = (byte)reader.Get<int>("Action"),
                         data = (ushort)reader.Get<int>("Data"),
                         style = (byte)reader.Get<int>("Style"),
-                        paint = (byte)reader.Get<int>("Paint"),
+                        paint = (short)reader.Get<int>("Paint"),
                         time = reader.Get<int>("Time"),
                         x = reader.Get<int>("XY") >> 16,
                         y = reader.Get<int>("XY") & 0xffff
