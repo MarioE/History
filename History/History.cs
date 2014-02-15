@@ -413,8 +413,11 @@ namespace History
                 case 278:
                 case 279:
                 case 280:
-                case 281:// (1,3)
-                    dest = new Vector2(1, 3);
+                case 281:
+                case 296:
+                case 297:
+                case 309:// (3,1)
+                    dest = new Vector2(3, 1);
                     break;
                 default:
                     dest = new Vector2(-1, -1);
