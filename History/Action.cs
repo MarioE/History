@@ -348,6 +348,9 @@ namespace History
                 case 11:
                 case 13:
                     return string.Format("{0} {1} broke wire. ({2})", date, account, dhms);
+                case 7:
+                case 14:
+                    return string.Format("{0} {1} slope/pound tile. ({2})", date, account, dhms);
                 case 8:
                     return string.Format("{0} {1} placed actuator. ({2})",date, account, dhms);
                 case 9:
