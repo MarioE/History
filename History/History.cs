@@ -1086,6 +1086,7 @@ namespace History
             TShockAPI.Commands.ChatCommands.Add(new Command("history.prune", Prune, "prunehist"));
             TShockAPI.Commands.ChatCommands.Add(new Command("history.reenact", Reenact, "reenact"));
             TShockAPI.Commands.ChatCommands.Add(new Command("history.rollback", Rollback, "rollback"));
+            TShockAPI.Commands.ChatCommands.Add(new Command("history.rollback", Undo, "rundo"));
 
             switch (TShock.Config.StorageType.ToLower())
             {
@@ -1221,6 +1222,17 @@ namespace History
             else
             {
                 e.Player.SendMessage("Invalid time.", Color.Red);
+            }
+        }
+        void Undo(CommandArgs e)
+        {
+            if (UndoCommand.LastRollBack != null)
+            {
+                CommandQueue.Add(new UndoCommand(e.Player));
+            }
+            else
+            {
+                e.Player.SendMessage("Nothing to undo!", Color.Red);
             }
         }
     }

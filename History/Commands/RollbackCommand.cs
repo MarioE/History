@@ -38,17 +38,19 @@ namespace History.Commands
             string XYReq = string.Format("XY / 65536 BETWEEN {0} AND {1} AND XY & 65535 BETWEEN {2} AND {3}", lowX, highX, lowY, highY);
 
             using (QueryResult reader =
-                History.Database.QueryReader("SELECT Action, Data, Style, Paint, XY FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
+                History.Database.QueryReader("SELECT Account, Action, Data, Style, Paint, Time, XY FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
                 account, rollbackTime, Main.worldID))
             {
                 while (reader.Read())
                 {
                     actions.Add(new Action
                     {
+                        account = reader.Get<string>("Account"),
                         action = (byte)reader.Get<int>("Action"),
                         data = (ushort)reader.Get<int>("Data"),
                         style = (byte)reader.Get<int>("Style"),
                         paint = (byte)reader.Get<int>("Paint"),
+                        time = reader.Get<int>("Time"),
                         x = reader.Get<int>("XY") >> 16,
                         y = reader.Get<int>("XY") & 0xffff
                     });
@@ -87,6 +89,7 @@ namespace History.Commands
                 {
                     actions[i].Rollback();
                 }
+                UndoCommand.LastWasReenact = false;
             }
             else
             {
@@ -94,8 +97,9 @@ namespace History.Commands
                 {
                     action.Reenact();
                 }
+                UndoCommand.LastWasReenact = true;
             }
-
+            UndoCommand.LastRollBack = actions;
             string str = reenact ? "Reenacted " : "Rolled back ";
 			sender.SendMessage(str + actions.Count + " action" + (actions.Count == 1 ? "" : "s") + ".", Color.Yellow);
         }
