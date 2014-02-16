@@ -173,7 +173,7 @@ namespace History
                 case 21://chest
                 case 27: //sunflower (randomness)
                 case 29:
-                case 55:// chest
+                case 55:// sign
                 case 85: //tombstone
                 case 103:
                 case 104://grandfather
@@ -577,29 +577,9 @@ namespace History
             }
             return dim;
         }
-        static void adjustFurniture(ref int x, ref int y, ref byte style)
+        static Vector2 adjustDest(ref Vector2 dest, Tile tile, int which, int div, byte style)
         {
-            int which = 10;
-            int div = 1;
-            Tile tile = Main.tile[x, y];
-            getPlaceData(tile.type, ref which, ref div);
-            switch (which)
-            {
-                case 0:
-                    style = (byte)(tile.frameX / div);
-                    break;
-                case 1:
-                    style = (byte)(tile.frameY / div);
-                    break;
-                case 2:
-                    style = (byte)((tile.frameY / div) * 36 + (tile.frameX / div));
-                    break;
-                default:
-                    break;
-            }
-            if (!Main.tileFrameImportant[tile.type]) return;
-            if (div == 1) div = 0xFFFF;
-            Vector2 dest = destFrame(tile.type);
+            Vector2 relative = new Vector2(0, 0);
             if (dest.X >= 0)
             {
                 int frameX = tile.frameX;
@@ -659,22 +639,52 @@ namespace History
                 {
                     relx = (frameX % 72) / 18;
                 }
-                x += ((int)dest.X - relx);
-                y += ((int)dest.Y - rely);
+                relative = new Vector2(relx, rely);
             }
+            return relative;
+        }
+        static void adjustFurniture(ref int x, ref int y, ref byte style, bool origin = false)
+        {
+            int which = 10;
+            int div = 1;
+            Tile tile = Main.tile[x, y];
+            getPlaceData(tile.type, ref which, ref div);
+            switch (which)
+            {
+                case 0:
+                    style = (byte)(tile.frameX / div);
+                    break;
+                case 1:
+                    style = (byte)(tile.frameY / div);
+                    break;
+                case 2:
+                    style = (byte)((tile.frameY / div) * 36 + (tile.frameX / div));
+                    break;
+                default:
+                    break;
+            }
+            if (!Main.tileFrameImportant[tile.type]) return;
+            if (div == 1) div = 0xFFFF;
+            Vector2 dest = destFrame(tile.type);
+            Vector2 relative = adjustDest(ref dest, tile, which, div, style);
+            if (origin) dest = new Vector2(0, 0);
+            x += (int)(dest.X - relative.X);
+            y += (int)(dest.Y - relative.Y);
+
         }
         public static void paintFurniture(ushort type, int x, int y, byte paint)
         {
-            Vector2 dest = destFrame(type);
             Vector2 size = furnitureDimensions(type);
-            //no destination
-            if (dest.X < 0)
-                dest = new Vector2(0, 0);
-            for (int j = (int)(x - dest.X); j <= (x - dest.X + size.X); j++)
+            byte style = 0;
+            adjustFurniture(ref x, ref y, ref style, true);
+            for (int j = x; j <= x + size.X; j++)
             {
-                for (int k = (int)(y - dest.Y); k <= (y - dest.Y + size.Y); k++)
+                for (int k = y; k <= y + size.Y; k++)
                 {
-                    Main.tile[j, k].color(paint);
+                    if (Main.tile[j, k].type == type)
+                    {
+                        Main.tile[j, k].color(paint);
+                    }
                 }
             }
         }
