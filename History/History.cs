@@ -140,8 +140,6 @@ namespace History
 				case 83: //herb
 				case 84: //herb
 				case 91: //banner
-				case 92: //lamppost
-				case 93: //tikitorch
 				case 144: //timer
 				case 149: //christmas light
 				case 178: //gems
@@ -151,6 +149,8 @@ namespace History
 					div = 18;
 					break;
 				case 19:
+				case 92: //lamppost
+				case 93: //tikitorch
 				case 135:
 				case 136://switch (state)
 				case 137:
@@ -427,7 +427,7 @@ namespace History
 			}
 			return dest;
 		}
-		static Vector2 furnitureDimensions(ushort type)
+		static Vector2 furnitureDimensions(ushort type, byte style)
 		{
 			Vector2 dim = new Vector2(0, 0);
 			switch (type)
@@ -496,6 +496,11 @@ namespace History
 					dim = new Vector2(0, 2);
 					break;
 				case 14:
+					if (style==25)//dynasty table
+						dim = new Vector2(2, 0);
+					else
+						dim = new Vector2(2, 1);
+					break;
 				case 17:
 				case 26:
 				case 77:
@@ -678,9 +683,10 @@ namespace History
 		}
 		public static void paintFurniture(ushort type, int x, int y, byte paint)
 		{
-			Vector2 size = furnitureDimensions(type);
+			
 			byte style = 0;
 			adjustFurniture(ref x, ref y, ref style, true);
+			Vector2 size = furnitureDimensions(type,style);
 			for (int j = x; j <= x + size.X; j++)
 			{
 				for (int k = y; k <= y + size.Y; k++)
@@ -937,6 +943,10 @@ namespace History
 											break;
 										case 101://bookcase
 											height = 4;
+											break;
+										case 14://table
+											if (style == 25)//dynasty table
+												height = 1;
 											break;
 										default://3X2
 											break;
