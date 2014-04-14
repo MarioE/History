@@ -395,7 +395,7 @@ namespace History
 				case 105:
 				case 269:
 				case 10:
-				case 11:// (0,1) DOOR, IGNORE FRAMEX*18 for 10
+				case 11:// Door, Ignore framex*18 for 10, not 11
 				case 93: // (0,2)
 					dest = new Vector2(0, 2);
 					break;
