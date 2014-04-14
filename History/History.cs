@@ -199,7 +199,7 @@ namespace History
 					which = 1;
 					div = 36;
 					break;
-				case 15:
+				case 15://chair
 				case 20:
 				case 216:
 					which = 1;
@@ -303,8 +303,6 @@ namespace History
 				case 216:
 				case 245:
 				case 15:
-				case 10:
-				case 11:// (0,1) DOOR, IGNORE FRAMEX*18 for 10
 					dest = new Vector2(0, 1);
 					break;
 				case 34:
@@ -396,6 +394,8 @@ namespace History
 				case 128:
 				case 105:
 				case 269:
+				case 10:
+				case 11:// (0,1) DOOR, IGNORE FRAMEX*18 for 10
 				case 93: // (0,2)
 					dest = new Vector2(0, 2);
 					break;
@@ -636,7 +636,7 @@ namespace History
 					dest.X++;
 				}
 			}
-			else if (tile.type == 10)//closed door
+			else if (tile.type == 10 || tile.type == 15)//closed door, chairs, ignore X
 			{
 				relx = 0;
 			}
