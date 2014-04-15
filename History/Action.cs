@@ -15,6 +15,7 @@ namespace History
         public int time;
         public int x;
         public int y;
+		public string text;
 
         public void Reenact()
         {
@@ -131,6 +132,8 @@ namespace History
                         NetMessage.SendData(64, -1, -1, "", x, y, data, 0f, 0);
                     }
                     break;
+				case 27://update sign
+					break;//Does not save the new text currently, can't reenact.
             }
         }
         public void Rollback()
@@ -180,6 +183,13 @@ namespace History
                     {
                         Main.tile[x, y].slope((byte)(paint >> 8));
                     }
+					//restore sign text
+					if (data == 55 || data == 85)
+					{
+						int signI = Sign.ReadSign(x,y);
+						if (signI >=0)
+							Sign.TextSign(signI,text);
+					}
                     //Send larger area for furniture
                     if (Main.tileFrameImportant[data])
                         TSPlayer.All.SendTileSquare(x, y, 8);
@@ -301,6 +311,13 @@ namespace History
                         NetMessage.SendData(64, -1, -1, "", x, y, paint, 0f, 0);
                     }
                     break;
+				case 27://updatesign
+					int sI = Sign.ReadSign(x,y); //This should be an existing sign, but use coords instead of index anyway
+					if (sI >= 0)
+					{
+						Sign.TextSign(sI, text);
+					}
+					break;
             }
         }
         public override string ToString()
@@ -358,6 +375,8 @@ namespace History
                 case 25:
                 case 26:
                     return string.Format("{0} {1} painted tile/wall. ({2})", date, account, dhms);
+				case 27:
+					return string.Format("{0} {1} changed sign text. ({2})", date, account, dhms);
                 default:
                     return "";
             }

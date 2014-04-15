@@ -32,8 +32,8 @@ namespace History.Commands
                     {
                         using (SqliteCommand command = (SqliteCommand)db.CreateCommand())
                         {
-                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID) VALUES (@0, @1, @2, @3, @4, @5, @6, @7)";
-                            for (int i = 0; i < 8; i++)
+                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID, Text) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8)";
+                            for (int i = 0; i < 9; i++)
                             {
                                 command.AddParameter("@" + i, null);
                             }
@@ -48,6 +48,7 @@ namespace History.Commands
                                 command.Parameters[4].Value = a.data;
                                 command.Parameters[5].Value = a.style;
                                 command.Parameters[6].Value = a.paint;
+								command.Parameters[8].Value = a.text;
                                 command.ExecuteNonQuery();
                             }
                         }
@@ -64,8 +65,8 @@ namespace History.Commands
                     {
                         using (MySqlCommand command = (MySqlCommand)db.CreateCommand())
                         {
-                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID) VALUES (@0, @1, @2, @3, @4, @5, @6, @7)";
-                            for (int i = 0; i < 8; i++)
+                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID, Text) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8)";
+                            for (int i = 0; i < 9; i++)
                             {
                                 command.AddParameter("@" + i, null);
                             }
@@ -80,6 +81,7 @@ namespace History.Commands
                                 command.Parameters[4].Value = a.data;
                                 command.Parameters[5].Value = a.style;
                                 command.Parameters[6].Value = a.paint;
+								command.Parameters[8].Value = a.text;
                                 command.ExecuteNonQuery();
                             }
                         }

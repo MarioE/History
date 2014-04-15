@@ -118,14 +118,14 @@ namespace History
 			ServerApi.Hooks.WorldSave.Register(this, OnSaveWorld);
 			initBreaks();
 		}
-		void Queue(string account, int X, int Y, byte action, ushort data = 0, byte style = 0, short paint = 0)
+		void Queue(string account, int X, int Y, byte action, ushort data = 0, byte style = 0, short paint = 0, string text = null)
 		{
 			if (Actions.Count == SaveCount)
 			{
 				CommandQueue.Add(new SaveCommand(Actions.ToArray()));
 				Actions.Clear();
 			}
-			Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y, paint = paint, style = style });
+			Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y, paint = paint, style = style, text = text });
 		}
 		static void getPlaceData(ushort type, ref int which, ref int div)
 		{
@@ -868,6 +868,11 @@ namespace History
 							case 11://close open doors
 								tileType = 10;
 								break;
+							case 55:
+							case 85:
+								int signI = Sign.ReadSign(X, Y);
+								Queue(account, X, Y, 0, tileType, pStyle, (short)(Main.tile[X, Y].color()),text:Main.sign[signI].text);
+								return;
 							case 124://wooden beam, breaks sides only
 								if (Main.tile[X - 1, Y].active() && breakableSides[Main.tile[X - 1, Y].type])
 									logEdit(0, Main.tile[X - 1, Y], X - 1, Y, 0, account, done);
@@ -1045,69 +1050,86 @@ namespace History
 		{
 			if (!e.Handled)
 			{
-				if (e.MsgID == PacketTypes.Tile)
+				switch (e.MsgID)
 				{
-					byte etype = e.Msg.readBuffer[e.Index];
-					int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
-					int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
-					ushort type = BitConverter.ToUInt16(e.Msg.readBuffer, e.Index + 9);
-					byte style = e.Msg.readBuffer[e.Index + 11];
-					if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
-					{
-						if (AwaitingHistory[e.Msg.whoAmI])
+					case PacketTypes.Tile:
 						{
-							AwaitingHistory[e.Msg.whoAmI] = false;
-							TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-							//See furniture edits on delete only
-							if (type == 0 && (etype == 0 || etype == 4))
-								adjustFurniture(ref X, ref Y, ref style);
-							CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-							e.Handled = true;
+							byte etype = e.Msg.readBuffer[e.Index];
+							int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
+							int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
+							ushort type = BitConverter.ToUInt16(e.Msg.readBuffer, e.Index + 9);
+							byte style = e.Msg.readBuffer[e.Index + 11];
+							if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
+							{
+								if (AwaitingHistory[e.Msg.whoAmI])
+								{
+									AwaitingHistory[e.Msg.whoAmI] = false;
+									TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
+									//See furniture edits on delete only
+									if (type == 0 && (etype == 0 || etype == 4))
+										adjustFurniture(ref X, ref Y, ref style);
+									CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
+									e.Handled = true;
+								}
+								else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
+								{
+									//effect only
+									if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
+										return;
+									logEdit(etype, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].UserAccountName, new List<Vector2>(), style);
+								}
+							}
 						}
-						else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
+						break;
+					//chest delete
+					case PacketTypes.TileKill:
 						{
-							//effect only
-							if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
-								return;
-							logEdit(etype, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].UserAccountName, new List<Vector2>(), style);
+							byte flag = e.Msg.readBuffer[e.Index];
+							int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
+							int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
+							if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
+							{
+								if (flag == 0 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y) && Main.tile[X, Y].type == 21)//chest kill!
+								{
+									byte style = 0;
+									adjustFurniture(ref X, ref Y, ref style);
+									Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 0, Main.tile[X, Y].type, style, Main.tile[X, Y].color());
+								}
+							}
 						}
-					}
-				}
-				//chest delete
-				else if (e.MsgID == PacketTypes.TileKill)
-				{
-					byte flag = e.Msg.readBuffer[e.Index];
-					int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
-					int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
-					if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
-					{
-						if (flag == 0 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y) && Main.tile[X, Y].type == 21)//chest kill!
+						break;
+					case PacketTypes.PaintTile:
 						{
-							byte style = 0;
-							adjustFurniture(ref X, ref Y, ref style);
-							Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 0, Main.tile[X, Y].type, style, Main.tile[X, Y].color());
+							int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index);
+							int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
+							byte color = e.Msg.readBuffer[e.Index + 9];
+							if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
+							{
+								Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 25, color, 0, Main.tile[X, Y].color());
+							}
 						}
-					}
-				}
-				else if (e.MsgID == PacketTypes.PaintTile)
-				{
-					int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index);
-					int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
-					byte color = e.Msg.readBuffer[e.Index + 9];
-					if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-					{
-						Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 25, color, 0, Main.tile[X, Y].color());
-					}
-				}
-				else if (e.MsgID == PacketTypes.PaintWall)
-				{
-					int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index);
-					int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
-					byte color = e.Msg.readBuffer[e.Index + 9];
-					if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-					{
-						Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 26, color, 0, Main.tile[X, Y].wallColor());
-					}
+						break;
+					case PacketTypes.PaintWall:
+						{
+							int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index);
+							int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
+							byte color = e.Msg.readBuffer[e.Index + 9];
+							if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
+							{
+								Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 26, color, 0, Main.tile[X, Y].wallColor());
+							}
+						}
+						break;
+					case PacketTypes.SignNew:
+						{
+							ushort signI = BitConverter.ToUInt16(e.Msg.readBuffer, e.Index);
+							int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 2);
+							int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 6);
+							byte s = 0;
+							adjustFurniture(ref X, ref Y, ref s); //Adjust coords so history picks it up, readSign() adjusts back to origin anyway
+							Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 27, data:signI, text:Main.sign[signI].text);
+						}
+						break;
 				}
 			}
 		}
@@ -1148,7 +1170,8 @@ namespace History
 				new SqlColumn("Data", MySqlDbType.Int32),
 				new SqlColumn("Style", MySqlDbType.Int32),
 				new SqlColumn("Paint", MySqlDbType.Int32),
-				new SqlColumn("WorldID", MySqlDbType.Int32)));
+				new SqlColumn("WorldID", MySqlDbType.Int32),
+				new SqlColumn("Text", MySqlDbType.Text)));
 
 			string datePath = Path.Combine(TShock.SavePath, "date.dat");
 			if (!File.Exists(datePath))
