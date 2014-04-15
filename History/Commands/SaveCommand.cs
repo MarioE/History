@@ -11,84 +11,84 @@ using TShockAPI.DB;
 
 namespace History.Commands
 {
-    public class SaveCommand : HCommand
-    {
-        private Action[] actions;
+	public class SaveCommand : HCommand
+	{
+		private Action[] actions;
 
-        public SaveCommand(Action[] actions)
+		public SaveCommand(Action[] actions)
 			: base(null)
-        {
-            this.actions = actions;
-        }
+		{
+			this.actions = actions;
+		}
 
-        public override void Execute()
-        {
-            if (TShock.DB.GetSqlType() == SqlType.Sqlite)
-            {
-                using (IDbConnection db = History.Database.CloneEx())
-                {
-                    db.Open();
-                    using (SqliteTransaction transaction = (SqliteTransaction)db.BeginTransaction())
-                    {
-                        using (SqliteCommand command = (SqliteCommand)db.CreateCommand())
-                        {
-                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID, Text) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8)";
-                            for (int i = 0; i < 9; i++)
-                            {
-                                command.AddParameter("@" + i, null);
-                            }
-                            command.Parameters[7].Value = Main.worldID;
+		public override void Execute()
+		{
+			if (TShock.DB.GetSqlType() == SqlType.Sqlite)
+			{
+				using (IDbConnection db = History.Database.CloneEx())
+				{
+					db.Open();
+					using (SqliteTransaction transaction = (SqliteTransaction)db.BeginTransaction())
+					{
+						using (SqliteCommand command = (SqliteCommand)db.CreateCommand())
+						{
+							command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID, Text) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8)";
+							for (int i = 0; i < 9; i++)
+							{
+								command.AddParameter("@" + i, null);
+							}
+							command.Parameters[7].Value = Main.worldID;
 
-                            foreach (Action a in actions)
-                            {
-                                command.Parameters[0].Value = a.time;
-                                command.Parameters[1].Value = a.account;
-                                command.Parameters[2].Value = a.action;
-                                command.Parameters[3].Value = (a.x << 16) + a.y;
-                                command.Parameters[4].Value = a.data;
-                                command.Parameters[5].Value = a.style;
-                                command.Parameters[6].Value = a.paint;
+							foreach (Action a in actions)
+							{
+								command.Parameters[0].Value = a.time;
+								command.Parameters[1].Value = a.account;
+								command.Parameters[2].Value = a.action;
+								command.Parameters[3].Value = (a.x << 16) + a.y;
+								command.Parameters[4].Value = a.data;
+								command.Parameters[5].Value = a.style;
+								command.Parameters[6].Value = a.paint;
 								command.Parameters[8].Value = a.text;
-                                command.ExecuteNonQuery();
-                            }
-                        }
-                        transaction.Commit();
-                    }
-                }
-            }
-            else
-            {
-                using (IDbConnection db = History.Database.CloneEx())
-                {
-                    db.Open();
-                    using (MySqlTransaction transaction = (MySqlTransaction)db.BeginTransaction())
-                    {
-                        using (MySqlCommand command = (MySqlCommand)db.CreateCommand())
-                        {
-                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID, Text) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8)";
-                            for (int i = 0; i < 9; i++)
-                            {
-                                command.AddParameter("@" + i, null);
-                            }
-                            command.Parameters[7].Value = Main.worldID;
+								command.ExecuteNonQuery();
+							}
+						}
+						transaction.Commit();
+					}
+				}
+			}
+			else
+			{
+				using (IDbConnection db = History.Database.CloneEx())
+				{
+					db.Open();
+					using (MySqlTransaction transaction = (MySqlTransaction)db.BeginTransaction())
+					{
+						using (MySqlCommand command = (MySqlCommand)db.CreateCommand())
+						{
+							command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID, Text) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8)";
+							for (int i = 0; i < 9; i++)
+							{
+								command.AddParameter("@" + i, null);
+							}
+							command.Parameters[7].Value = Main.worldID;
 
-                            foreach (Action a in actions)
-                            {
-                                command.Parameters[0].Value = a.time;
-                                command.Parameters[1].Value = a.account;
-                                command.Parameters[2].Value = a.action;
-                                command.Parameters[3].Value = (a.x << 16) + a.y;
-                                command.Parameters[4].Value = a.data;
-                                command.Parameters[5].Value = a.style;
-                                command.Parameters[6].Value = a.paint;
+							foreach (Action a in actions)
+							{
+								command.Parameters[0].Value = a.time;
+								command.Parameters[1].Value = a.account;
+								command.Parameters[2].Value = a.action;
+								command.Parameters[3].Value = (a.x << 16) + a.y;
+								command.Parameters[4].Value = a.data;
+								command.Parameters[5].Value = a.style;
+								command.Parameters[6].Value = a.paint;
 								command.Parameters[8].Value = a.text;
-                                command.ExecuteNonQuery();
-                            }
-                        }
-                        transaction.Commit();
-                    }
-                }
-            }
-        }
-    }
+								command.ExecuteNonQuery();
+							}
+						}
+						transaction.Commit();
+					}
+				}
+			}
+		}
+	}
 }
