@@ -149,8 +149,6 @@ namespace History
 					div = 18;
 					break;
 				case 19:
-				case 92: //lamppost
-				case 93: //tikitorch
 				case 135:
 				case 136://switch (state)
 				case 137:
@@ -258,6 +256,7 @@ namespace History
 				case 10:
 				case 11://door
 				case 34://chandelier
+				case 93: //tikitorch
 				case 241://4x3 wall painting
 					which = 1;
 					div = 54;
@@ -273,6 +272,10 @@ namespace History
 				case 242:
 					which = 1;
 					div = 72;
+					break;
+				case 92: //lamppost
+					which = 1;
+					div = 108;
 					break;
 				default:
 					break;
@@ -647,6 +650,10 @@ namespace History
 			else if (tile.type == 79 || tile.type == 90)//bed,bathtub
 			{
 				relx = (frameX % 72) / 18;
+			}
+			else if (tile.type == 14 && style == 25)
+			{
+				dest.Y--;
 			}
 			relative = new Vector2(relx, rely);
 
