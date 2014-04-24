@@ -1143,6 +1143,7 @@ namespace History
 		void OnInitialize(EventArgs e)
 		{
 			TShockAPI.Commands.ChatCommands.Add(new Command("history.get", HistoryCmd, "history"));
+			TShockAPI.Commands.ChatCommands.Add(new Command("history.get", Info, "log"));
 			TShockAPI.Commands.ChatCommands.Add(new Command("history.prune", Prune, "prunehist"));
 			TShockAPI.Commands.ChatCommands.Add(new Command("history.reenact", Reenact, "reenact"));
 			TShockAPI.Commands.ChatCommands.Add(new Command("history.rollback", Rollback, "rollback"));
@@ -1223,6 +1224,28 @@ namespace History
 		{
 			e.Player.SendMessage("Hit a block to get its history.", Color.LimeGreen);
 			AwaitingHistory[e.Player.Index] = true;
+		}
+		void Info(CommandArgs e)
+		{
+			if (e.Parameters.Count != 2 && e.Parameters.Count != 3)
+			{
+				e.Player.SendMessage("Invalid syntax! Proper syntax: /log <account> <time> [radius]", Color.Red);
+				return;
+			}
+			int radius = 10000;
+			int time;
+			if (!GetTime(e.Parameters[1], out time) || time <= 0)
+			{
+				e.Player.SendMessage("Invalid time.", Color.Red);
+			}
+			else if (e.Parameters.Count == 3 && (!int.TryParse(e.Parameters[2], out radius) || radius <= 0))
+			{
+				e.Player.SendMessage("Invalid radius.", Color.Red);
+			}
+			else
+			{
+				CommandQueue.Add(new InfoCommand(e.Parameters[0], time, radius, e.Player));
+			}
 		}
 		void Reenact(CommandArgs e)
 		{
