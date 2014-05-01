@@ -66,6 +66,8 @@
     <Compile Include="Commands\PruneCommand.cs" />
     <Compile Include="Commands\RollbackCommand.cs" />
     <Compile Include="Commands\SaveCommand.cs" />
+    <Compile Include="Commands\UndoCommand.cs" />
+    <Compile Include="Commands\InfoCommand.cs" />
     <Compile Include="History.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
