@@ -36,22 +36,16 @@ namespace History.Commands
 			string XYReq = string.Format("XY / 65536 BETWEEN {0} AND {1} AND XY & 65535 BETWEEN {2} AND {3}", lowX, highX, lowY, highY);
 
 			using (QueryResult reader =
-				History.Database.QueryReader("SELECT Account, Action, Data, Style, Paint, Time, XY, Text FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
+				History.Database.QueryReader("SELECT Action, XY FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
 				account, lookupTime, Main.worldID))
 			{
 				while (reader.Read())
 				{
 					actions.Add(new Action
 					{
-						account = reader.Get<string>("Account"),
 						action = (byte)reader.Get<int>("Action"),
-						data = (ushort)reader.Get<int>("Data"),
-						style = (byte)reader.Get<int>("Style"),
-						paint = (short)reader.Get<int>("Paint"),
-						time = reader.Get<int>("Time"),
 						x = reader.Get<int>("XY") >> 16,
 						y = reader.Get<int>("XY") & 0xffff,
-						text = reader.Get<string>("Text"),
 					});
 				}
 			}
@@ -75,7 +69,7 @@ namespace History.Commands
 			// 0 actions escape
 			if (actions.Count == 0)
 			{
-				sender.SendMessage(account + " performed no actions.", Color.Yellow);
+				sender.SendMessage(account + " performed no actions in specified area.", Color.Yellow);
 				return;
 			}
 			// Done
@@ -144,31 +138,11 @@ namespace History.Commands
 					case 5:
 					case 10:
 					case 12:
-						if (WirePlaced.Exists(act => act.x.Equals(action.x) && act.y.Equals(action.y)))
-						{
-							break;
-						}
-						if (WireDestroyed.Exists(act => act.x.Equals(action.x) && act.y.Equals(action.y)))
-						{
-							WireModified.Add(action);
-							WireDestroyed.RemoveAll(act => act.x.Equals(action.x) && act.y.Equals(action.y));
-							break;
-						}
 						WirePlaced.Add(action);
 						break;
 					case 6:
 					case 11:
 					case 13:
-						if (WireDestroyed.Exists(act => act.x.Equals(action.x) && act.y.Equals(action.y)))
-						{
-							break;
-						}
-						if (WirePlaced.Exists(act => act.x.Equals(action.x) && act.y.Equals(action.y)))
-						{
-							WireModified.Add(action);
-							WirePlaced.RemoveAll(act => act.x.Equals(action.x) && act.y.Equals(action.y));
-							break;
-						}
 						WireDestroyed.Add(action);
 						break;
 					case 7:
