@@ -1221,6 +1221,29 @@ namespace History
 
 		void HistoryCmd(CommandArgs e)
 		{
+			if (e.Parameters.Count > 0)
+			{
+				if (e.Parameters.Count != 2 && e.Parameters.Count != 3)
+				{
+					e.Player.SendMessage("Invalid syntax! Proper syntax: /history <account> <time> [radius]", Color.Red);
+					return;
+				}
+				int radius = 10000;
+				int time;
+				if (!GetTime(e.Parameters[1], out time) || time <= 0)
+				{
+					e.Player.SendMessage("Invalid time.", Color.Red);
+				}
+				else if (e.Parameters.Count == 3 && (!int.TryParse(e.Parameters[2], out radius) || radius <= 0))
+				{
+					e.Player.SendMessage("Invalid radius.", Color.Red);
+				}
+				else
+				{
+					CommandQueue.Add(new InfoCommand(e.Parameters[0], time, radius, e.Player));
+				}
+				return;
+			}
 			e.Player.SendMessage("Hit a block to get its history.", Color.LimeGreen);
 			AwaitingHistory[e.Player.Index] = true;
 		}
