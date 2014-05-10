@@ -127,12 +127,19 @@ namespace History
 			}
 			Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y, paint = paint, style = style, text = text });
 		}
+		// 314 Tracks, lots of styles, finished?
+		// 334 weapon rack done? weapon styles?
 		static void getPlaceData(ushort type, ref int which, ref int div)
 		{
 			switch (type)
 			{
-				//WHICH 0:X   1:Y
+				//WHICH block style is in 0:X   1:Y
+				case 314:
+					which = 0;
+					div = 1;
+					break;
 				case 13: //bottle
+				case 36:
 				case 49: //blue candle
 				case 174: //fancy candle
 				case 78: //clay pot
@@ -159,6 +166,7 @@ namespace History
 					break;
 				case 4: //torch
 				case 33: //candle
+				case 324:
 					which = 1;
 					div = 22;
 					break;
@@ -183,6 +191,8 @@ namespace History
 				case 245: //2x3 wall picture
 				case 254:
 				case 269:
+				case 320://more statues
+				case 337://     statues
 					which = 0;
 					div = 36;
 					break;
@@ -200,6 +210,7 @@ namespace History
 				case 15://chair
 				case 20:
 				case 216:
+				case 338:
 					which = 1;
 					div = 40;
 					break;
@@ -223,7 +234,6 @@ namespace History
 				case 298:
 				case 299:
 				case 310:
-				case 36:
 				case 106:
 				case 170:
 				case 171:
@@ -249,6 +259,7 @@ namespace History
 				case 101:
 				case 102:
 				case 133:
+				case 339:
 				case 235://teleporter
 					which = 0;
 					div = 54;
@@ -262,6 +273,7 @@ namespace History
 					div = 54;
 					break;
 				case 240://painting, style stored in both
+				case 334:
 					which = 2;
 					div = 54;
 					break;
@@ -290,11 +302,11 @@ namespace History
 				case 16:
 				case 18:
 				case 29:
+				case 91: 
 				case 103:
 				case 134:
 				case 270:
-				case 271:
-				case 91: // (0,0)
+				case 271:// (0,0)
 					dest = new Vector2(0, 0);
 					break;
 
@@ -305,6 +317,7 @@ namespace History
 				case 55:
 				case 216:
 				case 245:
+				case 338:
 				case 15:
 					dest = new Vector2(0, 1);
 					break;
@@ -315,11 +328,44 @@ namespace History
 				case 235:// (1,0)
 					dest = new Vector2(1, 0);
 					break;
+				case 14:
+				case 17:
+				case 26:
+				case 77:
+				case 79:
+				case 86:
+				case 87:
+				case 88:
+				case 89:
+				case 90:
+				case 94:
+				case 96:
+				case 97:
+				case 98:
+				case 99:
+				case 100:
+				case 114:
+				case 125:
 				case 132:
+				case 133:
 				case 138:
 				case 142:
 				case 143:
+				case 173:
+				case 186:
+				case 187:
+				case 215:
+				case 217:
+				case 218:
+				case 237:
+				case 240:
+				case 241:
+				case 244:
+				case 254:
 				case 282:
+				case 285:
+				case 286:
+				case 287:
 				case 288:
 				case 289:
 				case 290:
@@ -328,42 +374,16 @@ namespace History
 				case 293:
 				case 294:
 				case 295:
-				case 94:
-				case 79:
-				case 90:
-				case 240:
-				case 241:
-				case 97:
-				case 98:
-				case 99:
-				case 100:
-				case 125:
-				case 254:
-				case 96:
-				case 14:
-				case 17:
-				case 26:
-				case 77:
-				case 86:
-				case 87:
-				case 88:
-				case 89:
-				case 114:
-				case 133:
-				case 186:
-				case 187:
-				case 215:
-				case 217:
-				case 218:
-				case 237:
-				case 244:
-				case 285:
-				case 286:
-				case 287:
 				case 298:
 				case 299:
 				case 310:
-				case 173:// (1,1)
+				case 316:
+				case 317:
+				case 318:
+				case 319:
+				case 334:
+				case 335:
+				case 339:// (1,1)
 					dest = new Vector2(1, 1);
 					break;
 				case 106:
@@ -397,6 +417,8 @@ namespace History
 				case 128:
 				case 105:
 				case 269:
+				case 320:
+				case 337:
 				case 10:
 				case 11:// Door, Ignore framex*18 for 10, not 11
 				case 93: // (0,2)
@@ -441,6 +463,7 @@ namespace History
 				case 216:
 				case 270://top
 				case 271://top
+				case 338:
 					dim = new Vector2(0, 1);
 					break;
 				case 91:
@@ -478,14 +501,27 @@ namespace History
 				case 173:
 				case 254:
 				case 287:
+				case 288:
+				case 289:
+				case 290:
+				case 291:
+				case 292:
+				case 293:
+				case 294:
+				case 295:
+				case 316:
+				case 317:
+				case 318:
+				case 319:
+				case 335:
 					dim = new Vector2(1, 1);
 					break;
+				case 105:
 				case 128:
 				case 245:
 				case 269:
-					dim = new Vector2(1, 2);
-					break;
-				case 105:
+				case 320:
+				case 337:
 					dim = new Vector2(1, 2);
 					break;
 				case 27:
@@ -526,6 +562,7 @@ namespace History
 				case 298:
 				case 299:
 				case 310:
+				case 339:
 					dim = new Vector2(2, 1);
 					break;
 				case 235:
@@ -551,6 +588,7 @@ namespace History
 				case 306:
 				case 307:
 				case 308:
+				case 334:
 					dim = new Vector2(2, 2);
 					break;
 				case 101:
@@ -639,7 +677,7 @@ namespace History
 					dest.X++;
 				}
 			}
-			else if (tile.type == 10 || tile.type == 15)//closed door, chairs, ignore X
+			else if (tile.type == 10 || tile.type == 15)// random frames, ignore X
 			{
 				relx = 0;
 			}
@@ -679,6 +717,7 @@ namespace History
 				default:
 					break;
 			}
+			if (style < 0) style = 0;
 			if (!Main.tileFrameImportant[tile.type]) return;
 			if (div == 1) div = 0xFFFF;
 			Vector2 dest = destFrame(tile.type);
@@ -820,6 +859,15 @@ namespace History
 			breakableBottom[308] = true;
 			breakableBottom[309] = true;
 			breakableBottom[310] = true;
+			breakableBottom[316] = true;
+			breakableBottom[317] = true;
+			breakableBottom[318] = true;
+			breakableBottom[319] = true;
+			breakableBottom[320] = true;
+			breakableBottom[335] = true;
+			breakableBottom[337] = true;
+			breakableBottom[338] = true;
+			breakableBottom[339] = true;
 
 			breakableTop[10] = true;
 			breakableTop[11] = true;
@@ -848,6 +896,7 @@ namespace History
 			breakableWall[242] = true;
 			breakableWall[245] = true;
 			breakableWall[246] = true;
+			breakableWall[334] = true;
 		}
 		bool regionCheck(TSPlayer who, int x, int y)
 		{
@@ -1062,10 +1111,10 @@ namespace History
 					case PacketTypes.Tile:
 						{
 							byte etype = e.Msg.readBuffer[e.Index];
-							int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
-							int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
-							ushort type = BitConverter.ToUInt16(e.Msg.readBuffer, e.Index + 9);
-							byte style = e.Msg.readBuffer[e.Index + 11];
+							int X = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 1);
+							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 3);
+							ushort type = BitConverter.ToUInt16(e.Msg.readBuffer, e.Index + 5);
+							byte style = e.Msg.readBuffer[e.Index + 7];
 							if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
 							{
 								if (AwaitingHistory[e.Msg.whoAmI])
@@ -1092,8 +1141,8 @@ namespace History
 					case PacketTypes.TileKill:
 						{
 							byte flag = e.Msg.readBuffer[e.Index];
-							int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 1);
-							int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 5);
+							int X = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 1);
+							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 3);
 							if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
 							{
 								if (flag == 0 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y) && Main.tile[X, Y].type == 21)//chest kill!
@@ -1107,9 +1156,9 @@ namespace History
 						break;
 					case PacketTypes.PaintTile:
 						{
-							int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index);
-							int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
-							byte color = e.Msg.readBuffer[e.Index + 9];
+							int X = BitConverter.ToInt16(e.Msg.readBuffer, e.Index);
+							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 2);
+							byte color = e.Msg.readBuffer[e.Index + 4];
 							if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
 							{
 								Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 25, color, 0, Main.tile[X, Y].color());
@@ -1118,9 +1167,9 @@ namespace History
 						break;
 					case PacketTypes.PaintWall:
 						{
-							int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index);
-							int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 4);
-							byte color = e.Msg.readBuffer[e.Index + 9];
+							int X = BitConverter.ToInt16(e.Msg.readBuffer, e.Index);
+							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 2);
+							byte color = e.Msg.readBuffer[e.Index + 4];
 							if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
 							{
 								Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 26, color, 0, Main.tile[X, Y].wallColor());
@@ -1130,8 +1179,8 @@ namespace History
 					case PacketTypes.SignNew:
 						{
 							ushort signI = BitConverter.ToUInt16(e.Msg.readBuffer, e.Index);
-							int X = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 2);
-							int Y = BitConverter.ToInt32(e.Msg.readBuffer, e.Index + 6);
+							int X = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 2);
+							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 4);
 							byte s = 0;
 							adjustFurniture(ref X, ref Y, ref s); //Adjust coords so history picks it up, readSign() adjusts back to origin anyway
 							Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 27, data:signI, text:Main.sign[signI].text);
