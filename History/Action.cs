@@ -168,21 +168,30 @@ namespace History
 					}
 					//maybe already repaired?
 					if (Main.tile[x, y].active() && Main.tile[x, y].type == data)
+					{
+						if (data == 314)
+							goto frameOnly;
 						break;
+					}
 
 					WorldGen.PlaceTile(x, y, data, false, true, 0, style: style);
 
 					History.paintFurniture(data, x, y, (byte)(paint & 127));
 
+			frameOnly:
 					//restore slopes
 					if ((paint & 128) == 128)
 					{
 						Main.tile[x, y].halfBrick(true);
 					}
-					else
+					else if (data == 314)
 					{
-						Main.tile[x, y].slope((byte)(paint >> 8));
+						Main.tile[x, y].frameX = (short)(style-1);
+						Main.tile[x, y].frameY = (short)((paint >> 8)-1);
 					}
+					else
+						Main.tile[x, y].slope((byte)(paint >> 8));
+
 					//restore sign text
 					if (data == 55 || data == 85)
 					{
@@ -192,7 +201,7 @@ namespace History
 					}
 					//Send larger area for furniture
 					if (Main.tileFrameImportant[data])
-						TSPlayer.All.SendTileSquare(x, y, 8);
+						TSPlayer.All.SendTileSquare(x, y, 8);//This can be very large, or too small in some cases
 					else
 						TSPlayer.All.SendTileSquare(x, y, 1);
 					break;

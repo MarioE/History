@@ -302,7 +302,7 @@ namespace History
 				case 16:
 				case 18:
 				case 29:
-				case 91: 
+				case 91:
 				case 103:
 				case 134:
 				case 270:
@@ -535,7 +535,7 @@ namespace History
 					dim = new Vector2(0, 2);
 					break;
 				case 14:
-					if (style==25)//dynasty table
+					if (style == 25)//dynasty table
 						dim = new Vector2(2, 0);
 					else
 						dim = new Vector2(2, 1);
@@ -729,10 +729,10 @@ namespace History
 		}
 		public static void paintFurniture(ushort type, int x, int y, byte paint)
 		{
-			
+
 			byte style = 0;
 			adjustFurniture(ref x, ref y, ref style, true);
-			Vector2 size = furnitureDimensions(type,style);
+			Vector2 size = furnitureDimensions(type, style);
 			for (int j = x; j <= x + size.X; j++)
 			{
 				for (int k = y; k <= y + size.Y; k++)
@@ -927,7 +927,7 @@ namespace History
 							case 55:
 							case 85:
 								int signI = Sign.ReadSign(X, Y);
-								Queue(account, X, Y, 0, tileType, pStyle, (short)(Main.tile[X, Y].color()),text:Main.sign[signI].text);
+								Queue(account, X, Y, 0, tileType, pStyle, (short)(Main.tile[X, Y].color()), text: Main.sign[signI].text);
 								return;
 							case 124://wooden beam, breaks sides only
 								if (Main.tile[X - 1, Y].active() && breakableSides[Main.tile[X - 1, Y].type])
@@ -974,6 +974,16 @@ namespace History
 									Queue(account, X, topY, 0, 239, pStyle, (short)(Main.tile[X, topY].color() + ((Main.tile[X, topY].halfBrick() ? 1 : 0) << 7)));
 									topY++;
 								}
+								return;
+							case 314:
+								for (int i = -1; i < 2; i++)
+									for (int j = -1; j < 2; j++)
+									{
+										if (Main.tile[X + i, Y + j].active() && Main.tile[X + i, Y + j].type == 314)
+										{
+											Queue(account, X + i, Y + j, 0, 314, (byte)(Main.tile[X + i, Y + j].frameX+1), (short)(Main.tile[X + i, Y + j].color() + ((Main.tile[X + i, Y + j].frameY+1) << 8)));
+										}
+									}
 								return;
 							default:
 								if (Main.tileSolid[tileType])
@@ -1183,7 +1193,7 @@ namespace History
 							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 4);
 							byte s = 0;
 							adjustFurniture(ref X, ref Y, ref s); //Adjust coords so history picks it up, readSign() adjusts back to origin anyway
-							Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 27, data:signI, text:Main.sign[signI].text);
+							Queue(TShock.Players[e.Msg.whoAmI].UserAccountName, X, Y, 27, data: signI, text: Main.sign[signI].text);
 						}
 						break;
 				}
