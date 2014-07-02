@@ -31,6 +31,7 @@ namespace History
 		{
 			get { return "MarioE"; }
 		}
+		CancellationTokenSource Cancel = new CancellationTokenSource();
 		private BlockingCollection<HCommand> CommandQueue = new BlockingCollection<HCommand>();
 		private Thread CommandQueueThread;
 		public override string Description
@@ -52,54 +53,6 @@ namespace History
 			Order = 50;
 		}
 
-		bool GetTime(string str, out int time)
-		{
-			int seconds;
-			if (int.TryParse(str, out seconds))
-			{
-				time = seconds;
-				return true;
-			}
-
-			StringBuilder timeConv = new StringBuilder();
-			for (int i = 0; i < str.Length; i++)
-			{
-				if (char.IsDigit(str[i]) || (str[i] == '-' || str[i] == '+'))
-				{
-					timeConv.Append(str[i]);
-				}
-				else
-				{
-					int num;
-					if (!int.TryParse(timeConv.ToString(), out num))
-					{
-						time = 0;
-						return false;
-					}
-					timeConv.Clear();
-					switch (str[i])
-					{
-						case 's':
-							seconds += num;
-							break;
-						case 'm':
-							seconds += num * 60;
-							break;
-						case 'h':
-							seconds += num * 60 * 60;
-							break;
-						case 'd':
-							seconds += num * 60 * 60 * 24;
-							break;
-						default:
-							time = 0;
-							return false;
-					}
-				}
-			}
-			time = seconds;
-			return true;
-		}
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing)
@@ -108,7 +61,7 @@ namespace History
 				ServerApi.Hooks.NetGetData.Deregister(this, OnGetData);
 				ServerApi.Hooks.WorldSave.Deregister(this, OnSaveWorld);
 
-				CommandQueueThread.Abort();
+				Cancel.Cancel();
 			}
 		}
 		public override void Initialize()
@@ -1265,15 +1218,24 @@ namespace History
 		{
 			while (!Netplay.disconnect)
 			{
-				HCommand command = CommandQueue.Take();
+				HCommand command;
 				try
 				{
-					command.Execute();
+					if (!CommandQueue.TryTake(out command, -1, Cancel.Token))
+						return;
+					try
+					{
+						command.Execute();
+					}
+					catch (Exception ex)
+					{
+						command.Error("An error occurred. Check the logs for more details.");
+						Log.ConsoleError(ex.ToString());
+					}
 				}
-				catch (Exception ex)
+				catch (OperationCanceledException)
 				{
-					command.Error("An error occurred. Check the logs for more details.");
-					Log.ConsoleError(ex.ToString());
+					return;
 				}
 			}
 		}
@@ -1284,44 +1246,40 @@ namespace History
 			{
 				if (e.Parameters.Count != 2 && e.Parameters.Count != 3)
 				{
-					e.Player.SendMessage("Invalid syntax! Proper syntax: /history <account> <time> [radius]", Color.Red);
+					e.Player.SendErrorMessage("Invalid syntax! Proper syntax: /history [account] [time] [radius]");
 					return;
 				}
 				int radius = 10000;
 				int time;
-				if (!GetTime(e.Parameters[1], out time) || time <= 0)
-				{
-					e.Player.SendMessage("Invalid time.", Color.Red);
-				}
+				if (!TShock.Utils.TryParseTime(e.Parameters[1], out time) || time <= 0)
+					e.Player.SendErrorMessage("Invalid time.");
 				else if (e.Parameters.Count == 3 && (!int.TryParse(e.Parameters[2], out radius) || radius <= 0))
-				{
-					e.Player.SendMessage("Invalid radius.", Color.Red);
-				}
+					e.Player.SendErrorMessage("Invalid radius.");
 				else
-				{
 					CommandQueue.Add(new InfoCommand(e.Parameters[0], time, radius, e.Player));
-				}
-				return;
 			}
-			e.Player.SendMessage("Hit a block to get its history.", Color.LimeGreen);
-			AwaitingHistory[e.Player.Index] = true;
+			else
+			{
+				e.Player.SendMessage("Hit a block to get its history.", Color.LimeGreen);
+				AwaitingHistory[e.Player.Index] = true;
+			}
 		}
 		void Reenact(CommandArgs e)
 		{
 			if (e.Parameters.Count != 2 && e.Parameters.Count != 3)
 			{
-				e.Player.SendMessage("Invalid syntax! Proper syntax: /reenact <account> <time> [radius]", Color.Red);
+				e.Player.SendErrorMessage("Invalid syntax! Proper syntax: /reenact <account> <time> [radius]");
 				return;
 			}
 			int radius = 10000;
 			int time;
-			if (!GetTime(e.Parameters[1], out time) || time <= 0)
+			if (!TShock.Utils.TryParseTime(e.Parameters[1], out time) || time <= 0)
 			{
-				e.Player.SendMessage("Invalid time.", Color.Red);
+				e.Player.SendErrorMessage("Invalid time.");
 			}
 			else if (e.Parameters.Count == 3 && (!int.TryParse(e.Parameters[2], out radius) || radius <= 0))
 			{
-				e.Player.SendMessage("Invalid radius.", Color.Red);
+				e.Player.SendErrorMessage("Invalid radius.");
 			}
 			else
 			{
@@ -1332,51 +1290,37 @@ namespace History
 		{
 			if (e.Parameters.Count != 2 && e.Parameters.Count != 3)
 			{
-				e.Player.SendMessage("Invalid syntax! Proper syntax: /rollback <account> <time> [radius]", Color.Red);
+				e.Player.SendErrorMessage("Invalid syntax! Proper syntax: /rollback <account> <time> [radius]");
 				return;
 			}
 			int radius = 10000;
 			int time;
-			if (!GetTime(e.Parameters[1], out time) || time <= 0)
-			{
-				e.Player.SendMessage("Invalid time.", Color.Red);
-			}
+			if (!TShock.Utils.TryParseTime(e.Parameters[1], out time) || time <= 0)
+				e.Player.SendErrorMessage("Invalid time.");
 			else if (e.Parameters.Count == 3 && (!int.TryParse(e.Parameters[2], out radius) || radius <= 0))
-			{
-				e.Player.SendMessage("Invalid radius.", Color.Red);
-			}
+				e.Player.SendErrorMessage("Invalid radius.");
 			else
-			{
 				CommandQueue.Add(new RollbackCommand(e.Parameters[0], time, radius, e.Player));
-			}
 		}
 		void Prune(CommandArgs e)
 		{
 			if (e.Parameters.Count != 1)
 			{
-				e.Player.SendMessage("Invalid syntax! Proper syntax: /prunehist <time>", Color.Red);
+				e.Player.SendErrorMessage("Invalid syntax! Proper syntax: /prunehist <time>");
 				return;
 			}
 			int time;
-			if (GetTime(e.Parameters[0], out time) && time > 0)
-			{
+			if (TShock.Utils.TryParseTime(e.Parameters[0], out time) && time > 0)
 				CommandQueue.Add(new PruneCommand(time, e.Player));
-			}
 			else
-			{
-				e.Player.SendMessage("Invalid time.", Color.Red);
-			}
+				e.Player.SendErrorMessage("Invalid time.");
 		}
 		void Undo(CommandArgs e)
 		{
 			if (UndoCommand.LastRollBack != null)
-			{
 				CommandQueue.Add(new UndoCommand(e.Player));
-			}
 			else
-			{
-				e.Player.SendMessage("Nothing to undo!", Color.Red);
-			}
+				e.Player.SendErrorMessage("Nothing to undo!");
 		}
 	}
 }

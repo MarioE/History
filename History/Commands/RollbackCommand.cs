@@ -63,13 +63,10 @@ namespace History.Commands
 					account, rollbackTime, Main.worldID);
 			}
 			if (Main.rand == null)
-			{
 				Main.rand = new Random();
-			}
 			if (WorldGen.genRand == null)
-			{
 				WorldGen.genRand = new Random();
-			}
+
 			for (int i = 0; i >= 0 && i < History.Actions.Count; i++)
 			{
 				Action action = History.Actions[i];
@@ -87,22 +84,17 @@ namespace History.Commands
 			if (!reenact)
 			{
 				for (int i = actions.Count - 1; i >= 0; i--)
-				{
 					actions[i].Rollback();
-				}
 				UndoCommand.LastWasReenact = false;
 			}
 			else
 			{
 				foreach (Action action in actions)
-				{
 					action.Reenact();
-				}
 				UndoCommand.LastWasReenact = true;
 			}
 			UndoCommand.LastRollBack = actions;
-			string str = reenact ? "Reenacted " : "Rolled back ";
-			sender.SendMessage(str + actions.Count + " action" + (actions.Count == 1 ? "" : "s") + ".", Color.Yellow);
+			sender.SendInfoMessage("R{0} {1} action{2}.", reenact ? "eenacted" : "olled back", actions.Count, actions.Count == 1 ? "" : "s");
 		}
 	}
 }

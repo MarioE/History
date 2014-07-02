@@ -40,18 +40,12 @@ namespace History.Commands
                 }
             }
 
-            actions.AddRange(from a in History.Actions
-                             where a.x == x && a.y == y
-                             select a);
-            sender.SendMessage("Tile history (" + x + ", " + y + "):", Color.Green);
+            actions.AddRange(History.Actions.Where(a => a.x == x && a.y == y));
+            sender.SendSuccessMessage("Tile history ({0}, {1}):", x, y);
             foreach (Action a in actions)
-            {
-				sender.SendMessage(a.ToString(), Color.Yellow);
-            }
+				sender.SendInfoMessage(a.ToString());
             if (actions.Count == 0)
-            {
-				sender.SendMessage("No history available.", Color.Red);
-            }
+				sender.SendErrorMessage("No history available.");
         }
     }
 }

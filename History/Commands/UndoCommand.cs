@@ -24,22 +24,18 @@ namespace History.Commands
             if (LastWasReenact)
             {
                 for (int i = LastRollBack.Count - 1; i >= 0; i--)
-                {
                     LastRollBack[i].Rollback();
-                }
             }
             else
             {
                 foreach (Action action in LastRollBack)
-                {
                     action.Reenact();
-                }
             }
             //Resave actions into database
             SaveCommand undo = new SaveCommand(LastRollBack.ToArray());
             undo.Execute();
 
-            sender.SendMessage("Undo complete! " + LastRollBack.Count + " actions redone", Color.Green);
+            sender.SendSuccessMessage("Undo complete! {0} actions redone.", LastRollBack.Count);
             LastRollBack = null;
         }
     }

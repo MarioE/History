@@ -23,7 +23,7 @@ namespace History.Commands
             int time = (int)(DateTime.UtcNow - History.Date).TotalSeconds - this.time;
             History.Database.Query("DELETE FROM History WHERE Time < @0 AND WorldID = @1", time, Main.worldID);
             History.Actions.RemoveAll(a => a.time < time);
-			sender.SendMessage("Pruned history.", Color.Green);
+			sender.SendSuccessMessage("Pruned history.");
         }
     }
 }

@@ -24,7 +24,7 @@ namespace History.Commands
 
 		public override void Execute()
 		{
-			List<Action> actions = new List<Action>();
+			var actions = new List<Action>();
 			int lookupTime = (int)(DateTime.UtcNow - History.Date).TotalSeconds - time;
 
 			int plrX = sender.TileX;
@@ -49,14 +49,7 @@ namespace History.Commands
 					});
 				}
 			}
-			if (Main.rand == null)
-			{
-				Main.rand = new Random();
-			}
-			if (WorldGen.genRand == null)
-			{
-				WorldGen.genRand = new Random();
-			}
+
 			for (int i = 0; i >= 0 && i < History.Actions.Count; i++)
 			{
 				Action action = History.Actions[i];
@@ -69,9 +62,10 @@ namespace History.Commands
 			// 0 actions escape
 			if (actions.Count == 0)
 			{
-				sender.SendMessage(account + " performed no actions in specified area.", Color.Yellow);
+				sender.SendInfoMessage("{0} performed no actions in the specified area.", account);
 				return;
 			}
+
 			// Done
 			List<Action> TilePlaced = new List<Action>(), TileDestroyed = new List<Action>(), TileModified = new List<Action>(),
 						WallPlaced = new List<Action>(), WallDestroyed = new List<Action>(), WallModified = new List<Action>(),
@@ -225,7 +219,7 @@ namespace History.Commands
 
 			InfoPrep.Length--;
 			InfoPrep.Append(".");
-			sender.SendMessage(InfoPrep.ToString(), Color.Yellow);
+			sender.SendInfoMessage(InfoPrep.ToString());
 		}
 	}
 }
