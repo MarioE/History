@@ -1183,14 +1183,14 @@ namespace History
 				Database.GetSqlType() == SqlType.Sqlite ? (IQueryBuilder)new SqliteQueryCreator() : new MysqlQueryCreator());
 			sqlcreator.EnsureExists(new SqlTable("History",
 				new SqlColumn("Time", MySqlDbType.Int32),
-				new SqlColumn("Account", MySqlDbType.Text),
+				new SqlColumn("Account", MySqlDbType.VarChar) { Length = 50 },
 				new SqlColumn("Action", MySqlDbType.Int32),
 				new SqlColumn("XY", MySqlDbType.Int32),
 				new SqlColumn("Data", MySqlDbType.Int32),
 				new SqlColumn("Style", MySqlDbType.Int32),
 				new SqlColumn("Paint", MySqlDbType.Int32),
 				new SqlColumn("WorldID", MySqlDbType.Int32),
-				new SqlColumn("Text", MySqlDbType.Text)));
+				new SqlColumn("Text", MySqlDbType.VarChar) { Length = 50 }));
 
 			string datePath = Path.Combine(TShock.SavePath, "date.dat");
 			if (!File.Exists(datePath))
