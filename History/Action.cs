@@ -118,6 +118,10 @@ namespace History
 					WorldGen.SlopeTile(x, y, data);
 					TSPlayer.All.SendTileSquare(x, y, 1);
 					break;
+                case 15:
+                    //Uh wtf does "frame track" mean
+                    //Too lazy to find atm
+                    break;
 				case 25://paint tile
 					if (Main.tile[x, y].active())
 					{
@@ -306,6 +310,9 @@ namespace History
 					Main.tile[x, y].halfBrick((paint & 128) == 128);
 					TSPlayer.All.SendTileSquare(x, y, 1);
 					break;
+                case 15: //frame track
+                    //see above
+                    break;
 				case 25://paint tile
 					if (Main.tile[x, y].active())
 					{
