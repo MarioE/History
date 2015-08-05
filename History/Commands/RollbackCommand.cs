@@ -38,7 +38,7 @@ namespace History.Commands
 			string XYReq = string.Format("XY / 65536 BETWEEN {0} AND {1} AND XY & 65535 BETWEEN {2} AND {3}", lowX, highX, lowY, highY);
 
 			using (QueryResult reader =
-				History.Database.QueryReader("SELECT Account, Action, Data, Style, Paint, Time, XY, Text FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
+				History.Database.QueryReader("SELECT * FROM History WHERE Account = @0 AND Time >= @1 AND " + XYReq + " AND WorldID = @2",
 				account, rollbackTime, Main.worldID))
 			{
 				while (reader.Read())
@@ -54,6 +54,9 @@ namespace History.Commands
 						x = reader.Get<int>("XY") >> 16,
 						y = reader.Get<int>("XY") & 0xffff,
 						text = reader.Get<string>("Text"),
+                        alt = (byte)reader.Get<int>("Alternate"),
+                        random = (sbyte)reader.Get<int>("Random"),
+                        direction = reader.Get<int>("Direction") == 1 ? true : false
 					});
 				}
 			}

@@ -32,8 +32,8 @@ namespace History.Commands
 					{
 						using (SqliteCommand command = (SqliteCommand)db.CreateCommand())
 						{
-							command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID, Text) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8)";
-							for (int i = 0; i < 9; i++)
+                            command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID, Text, Alternate, Random, Direction) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9, @10, @11)";
+							for (int i = 0; i < 12; i++)
 							{
 								command.AddParameter("@" + i, null);
 							}
@@ -49,6 +49,9 @@ namespace History.Commands
 								command.Parameters[5].Value = a.style;
 								command.Parameters[6].Value = a.paint;
 								command.Parameters[8].Value = a.text;
+                                command.Parameters[9].Value = a.alt;
+                                command.Parameters[10].Value = a.random;
+                                command.Parameters[11].Value = a.direction ? 1 : -1;
 								command.ExecuteNonQuery();
 							}
 						}
@@ -65,8 +68,8 @@ namespace History.Commands
 					{
 						using (MySqlCommand command = (MySqlCommand)db.CreateCommand())
 						{
-							command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID, Text) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8)";
-							for (int i = 0; i < 9; i++)
+							command.CommandText = "INSERT INTO History (Time, Account, Action, XY, Data, Style, Paint, WorldID, Text, Alternate, Random, Direction) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9, @10, @11)";
+							for (int i = 0; i < 12; i++)
 							{
 								command.AddParameter("@" + i, null);
 							}
@@ -82,7 +85,10 @@ namespace History.Commands
 								command.Parameters[5].Value = a.style;
 								command.Parameters[6].Value = a.paint;
 								command.Parameters[8].Value = a.text;
-								command.ExecuteNonQuery();
+                                command.Parameters[9].Value = a.alt;
+                                command.Parameters[10].Value = a.random;
+                                command.Parameters[11].Value = a.direction ? 1 : -1;
+                                command.ExecuteNonQuery();
 							}
 						}
 						transaction.Commit();
