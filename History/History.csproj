@@ -43,11 +43,13 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="TerrariaServer">
-      <HintPath>..\..\..\..\Desktop\TShock 4.3.7\TerrariaServer.exe</HintPath>
+    <Reference Include="TerrariaServer, Version=1.3.0.6, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Desktop\TShock 4.3.8\TerrariaServer.exe</HintPath>
     </Reference>
-    <Reference Include="TShockAPI">
-      <HintPath>..\..\..\..\Desktop\TShock 4.3.7\ServerPlugins\TShockAPI.dll</HintPath>
+    <Reference Include="TShockAPI, Version=4.3.7.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Desktop\TShock 4.3.8\ServerPlugins\TShockAPI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

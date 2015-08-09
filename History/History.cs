@@ -15,7 +15,7 @@ using TShockAPI.DB;
 
 namespace History
 {
-	[ApiVersion(1, 20)]
+	[ApiVersion(1, 21)]
 	public class History : TerrariaPlugin
 	{
 		public static List<Action> Actions = new List<Action>(SaveCount);
@@ -1208,7 +1208,16 @@ namespace History
 			{
 				switch (e.MsgID)
 				{
-					case PacketTypes.Tile:
+                    case PacketTypes.PlaceItemFrame:
+                        TSPlayer.All.SendInfoMessage("Placing item frame!");
+                        break;
+                    case PacketTypes.PlaceTileEntity:
+                        TSPlayer.All.SendInfoMessage("Placing tile entity!");
+                        break;
+                    case PacketTypes.UpdateTileEntity:
+                        TSPlayer.All.SendInfoMessage("Updating tile entity!");
+                        break;
+                    case PacketTypes.Tile:
 						{
 							byte etype = e.Msg.readBuffer[e.Index];
 							int X = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 1);
@@ -1216,15 +1225,25 @@ namespace History
 							ushort type = BitConverter.ToUInt16(e.Msg.readBuffer, e.Index + 5);
 							byte style = e.Msg.readBuffer[e.Index + 7];
                             if (type == 1 && (etype == 0 || etype == 4))
+                            {
                                 if (Main.tile[X, Y].type == 21 || Main.tile[X, Y].type == 88)
                                     return; //Chests and dressers handled separately
+                                else if (Main.tile[X, Y].type == 2699)
+                                    TSPlayer.All.SendInfoMessage("Weapon rack place");
+                                    }
+                            //DEBUG
+                            TSPlayer.All.SendInfoMessage($"Type: {type}");
 							if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
 							{
 								if (AwaitingHistory[e.Msg.whoAmI])
 								{
 									AwaitingHistory[e.Msg.whoAmI] = false;
 									TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-									if (type == 0 && (etype == 0 || etype == 4))
+                                    //DEBUG
+                                    TSPlayer.All.SendInfoMessage($"X: {X}, Y: {Y}, FrameX: {Main.tile[X, Y].frameX}, FrameY: {Main.tile[X, Y].frameY}");
+                                    e.Handled = true;
+                                    //END DEBUG
+                                    if (type == 0 && (etype == 0 || etype == 4))
 										adjustFurniture(ref X, ref Y, ref style);
                                     CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
 									e.Handled = true;
@@ -1246,8 +1265,12 @@ namespace History
                             int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 2);
                             ushort type = BitConverter.ToUInt16(e.Msg.readBuffer, e.Index + 4);
                             int style = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 6);
+                            //DEBUG:
+                            TSPlayer.All.SendInfoMessage($"Style: {style}");
                             int alt = (byte)e.Msg.readBuffer[e.Index + 8];
-                            int rand = (sbyte)e.Msg.readBuffer[e.Index + 9]; 
+                            TSPlayer.All.SendInfoMessage($"Alternate: {alt}");
+                            int rand = (sbyte)e.Msg.readBuffer[e.Index + 9];
+                            TSPlayer.All.SendInfoMessage($"Random: {rand}");
                             bool dir = BitConverter.ToBoolean(e.Msg.readBuffer, e.Index + 10);
                             if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
                             {
