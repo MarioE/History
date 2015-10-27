@@ -1,4 +1,8 @@
-﻿using System;
+﻿/*
+ * Credit to MarioE for original plugin.
+*/
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
@@ -26,7 +30,7 @@ namespace History
 		private bool[] AwaitingHistory = new bool[256];
 		public override string Author
 		{
-			get { return "MarioE"; }
+			get { return "Maintained by Zaicon"; }
 		}
 		CancellationTokenSource Cancel = new CancellationTokenSource();
 		private BlockingCollection<HCommand> CommandQueue = new BlockingCollection<HCommand>();
