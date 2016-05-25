@@ -154,11 +154,11 @@ namespace History
 				case 269:
 				case 320://more statues
 				case 337://     statues
-                case 376: //fishing crates
-                case 378: //target dummy
-                case 386: //trapdoor open
-                case 410: //lunar monolith
-                case 411: //Detonator
+				case 376: //fishing crates
+				case 378: //target dummy
+				case 386: //trapdoor open
+				case 410: //lunar monolith
+				case 411: //Detonator
 				case 425: // Announcement (Sign)
 				case 441:
 				case 443: //Geyser
@@ -176,10 +176,10 @@ namespace History
 					which = 1;
 					div = 36;
 					break;
-                case 172: //sinks
-                    which = 1;
-                    div = 38;
-                    break;
+				case 172: //sinks
+					which = 1;
+					div = 38;
+					break;
 				case 15://chair
 				case 20:
 				case 216:
@@ -234,8 +234,8 @@ namespace History
 				case 133:
 				case 339:
 				case 235: //teleporter
-                case 377: //sharpening station
-                case 405: //fireplace
+				case 377: //sharpening station
+				case 405: //fireplace
 					which = 0;
 					div = 54;
 					break;
@@ -261,11 +261,11 @@ namespace History
 					which = 1;
 					div = 72;
 					break;
-                case 388: //tall gate closed
-                case 389: //tall gate open
-                    which = 1;
-                    div = 94;
-                    break;
+				case 388: //tall gate closed
+				case 389: //tall gate open
+					which = 1;
+					div = 94;
+					break;
 				case 92: //lamppost
 					which = 1;
 					div = 108;
@@ -281,31 +281,31 @@ namespace History
 			{
 				case 16:
 				case 18:
-				case 29: 
-				case 42: 
-				case 91: 
-				case 103: 
-				case 134: 
-                case 270: 
+				case 29:
+				case 42:
+				case 91:
+				case 103:
+				case 134:
+				case 270:
 				case 271:
-                case 386:
-                case 387:
-                case 388:
-                case 389:
-                case 395:
+				case 386:
+				case 387:
+				case 388:
+				case 389:
+				case 395:
 				case 443:
 					dest = new Vector2(0, 0);
 					break;
 				case 15:
-				case 21: 
-				case 35: 
-                case 55:
-				case 85: 
-				case 139: 
-                case 216: 
-				case 245: 
-				case 338: 
-                case 390:
+				case 21:
+				case 35:
+				case 55:
+				case 85:
+				case 139:
+				case 216:
+				case 245:
+				case 338:
+				case 390:
 				case 425:
 					dest = new Vector2(0, 1);
 					break;
@@ -339,7 +339,7 @@ namespace History
 				case 138:
 				case 142:
 				case 143:
-                case 172: //sinks
+				case 172: //sinks
 				case 173:
 				case 186:
 				case 187:
@@ -373,21 +373,21 @@ namespace History
 				case 334:
 				case 335:
 				case 339:
-                case 354:
-                case 355:
-                case 360:
-                case 361:
-                case 362:
-                case 363:
-                case 364:
-                case 376:
-                case 377:
-                case 391:
-                case 392:
-                case 393:
-                case 394:
-                case 405:
-                case 411:
+				case 354:
+				case 355:
+				case 360:
+				case 361:
+				case 362:
+				case 363:
+				case 364:
+				case 376:
+				case 377:
+				case 391:
+				case 392:
+				case 393:
+				case 394:
+				case 405:
+				case 411:
 				case 440:
 				case 441:// (1,1)
 					dest = new Vector2(1, 1);
@@ -411,13 +411,13 @@ namespace History
 				case 306:
 				case 307:
 				case 308:
-                case 349:
-                case 356:
-                case 378:
-                case 406:
-                case 410:
+				case 349:
+				case 356:
+				case 378:
+				case 406:
+				case 410:
 				case 412:// (1,2)
-                    dest = new Vector2(1, 2);
+					dest = new Vector2(1, 2);
 					break;
 				case 101:
 				case 102:// (1,3)
@@ -457,12 +457,12 @@ namespace History
 				case 297:
 				case 309:// (3,1)
 					dest = new Vector2(3, 1);
-                    break;
-                case 358:
-                case 359:
-                case 413:
-                case 414:
-                    dest = new Vector2(3, 2);
+					break;
+				case 358:
+				case 359:
+				case 413:
+				case 414:
+					dest = new Vector2(3, 2);
 					break;
 				default:
 					dest = new Vector2(-1, -1);
@@ -482,17 +482,17 @@ namespace History
 				case 270://top
 				case 271://top
 				case 338:
-                case 390:
+				case 390:
 					dim = new Vector2(0, 1);
 					break;
 				case 91: //1x3
 				case 93: //1x3
 					dim = new Vector2(0, 2);
 					break;
-                case 388:
-                case 389:
-                    dim = new Vector2(0, 4);
-                    break;
+				case 388:
+				case 389:
+					dim = new Vector2(0, 4);
+					break;
 				case 92: //1x4
 					dim = new Vector2(0, 5);
 					break;
@@ -501,7 +501,7 @@ namespace History
 				case 29:
 				case 103:
 				case 134:
-                case 387:
+				case 387:
 				case 443:
 					dim = new Vector2(1, 0);
 					break;
@@ -539,11 +539,11 @@ namespace History
 				case 318:
 				case 319:
 				case 335:
-                case 360:
-                case 376:
-                case 386:
-                case 395:
-                case 411:
+				case 360:
+				case 376:
+				case 386:
+				case 395:
+				case 411:
 				case 425:
 				case 441:
 					dim = new Vector2(1, 1);
@@ -554,10 +554,10 @@ namespace History
 				case 269:
 				case 320:
 				case 337:
-                case 349:
-                case 356:
-                case 378:
-                case 410:
+				case 349:
+				case 356:
+				case 378:
+				case 410:
 					dim = new Vector2(1, 2);
 					break;
 				case 27:
@@ -599,18 +599,18 @@ namespace History
 				case 299:
 				case 310:
 				case 339:
-                case 354:
-                case 355:
-                case 361:
-                case 362:
-                case 363:
-                case 364:
-                case 377:
-                case 391:
-                case 392:
-                case 393:
-                case 394:
-                case 405:
+				case 354:
+				case 355:
+				case 361:
+				case 362:
+				case 363:
+				case 364:
+				case 377:
+				case 391:
+				case 392:
+				case 393:
+				case 394:
+				case 405:
 					dim = new Vector2(2, 1);
 					break;
 				case 235:
@@ -637,8 +637,8 @@ namespace History
 				case 307:
 				case 308:
 				case 334:
-                case 406:
-                case 412:
+				case 406:
+				case 412:
 				case 440:
 					dim = new Vector2(2, 2);
 					break;
@@ -664,10 +664,10 @@ namespace History
 				case 296:
 				case 297:
 				case 309:
-                case 358:
-                case 359:
-                case 413:
-                case 414:
+				case 358:
+				case 359:
+				case 413:
+				case 414:
 					dim = new Vector2(5, 2);
 					break;
 				case 242:
@@ -923,42 +923,42 @@ namespace History
 			breakableBottom[337] = true;
 			breakableBottom[338] = true;
 			breakableBottom[339] = true;
-            breakableBottom[349] = true;
-            breakableBottom[354] = true;
-            breakableBottom[355] = true;
-            breakableBottom[356] = true;
-            breakableBottom[358] = true;
-            breakableBottom[359] = true;
-            breakableBottom[360] = true;
-            breakableBottom[361] = true;
-            breakableBottom[362] = true;
-            breakableBottom[363] = true;
-            breakableBottom[364] = true;
-            breakableBottom[372] = true;
-            breakableBottom[376] = true;
-            breakableBottom[377] = true;
-            breakableBottom[378] = true;
-            breakableBottom[380] = true;
-            breakableBottom[380] = true;
-            breakableBottom[388] = true;
-            breakableBottom[389] = true;
-            breakableBottom[390] = true;
-            breakableBottom[391] = true;
-            breakableBottom[392] = true;
-            breakableBottom[393] = true;
-            breakableBottom[394] = true;
-            breakableBottom[405] = true;
-            breakableBottom[406] = true;
-            breakableBottom[410] = true;
-            breakableBottom[413] = true;
-            breakableBottom[414] = true;
+			breakableBottom[349] = true;
+			breakableBottom[354] = true;
+			breakableBottom[355] = true;
+			breakableBottom[356] = true;
+			breakableBottom[358] = true;
+			breakableBottom[359] = true;
+			breakableBottom[360] = true;
+			breakableBottom[361] = true;
+			breakableBottom[362] = true;
+			breakableBottom[363] = true;
+			breakableBottom[364] = true;
+			breakableBottom[372] = true;
+			breakableBottom[376] = true;
+			breakableBottom[377] = true;
+			breakableBottom[378] = true;
+			breakableBottom[380] = true;
+			breakableBottom[380] = true;
+			breakableBottom[388] = true;
+			breakableBottom[389] = true;
+			breakableBottom[390] = true;
+			breakableBottom[391] = true;
+			breakableBottom[392] = true;
+			breakableBottom[393] = true;
+			breakableBottom[394] = true;
+			breakableBottom[405] = true;
+			breakableBottom[406] = true;
+			breakableBottom[410] = true;
+			breakableBottom[413] = true;
+			breakableBottom[414] = true;
 			breakableBottom[419] = true;
 			breakableBottom[425] = true;
 			breakableBottom[441] = true;
 			breakableBottom[442] = true;
 			breakableBottom[443] = true;
 
-            breakableTop[10] = true;
+			breakableTop[10] = true;
 			breakableTop[11] = true;
 			breakableTop[34] = true;
 			breakableTop[42] = true;
@@ -970,20 +970,20 @@ namespace History
 			breakableTop[149] = true;
 			breakableTop[270] = true;
 			breakableTop[271] = true;
-            breakableTop[380] = true;
-            breakableTop[388] = true;
-            breakableTop[389] = true;
+			breakableTop[380] = true;
+			breakableTop[388] = true;
+			breakableTop[389] = true;
 			breakableTop[425] = true;
 			breakableTop[443] = true;
 
-            breakableSides[4] = true;
+			breakableSides[4] = true;
 			breakableSides[55] = true;
 			breakableSides[129] = true;
 			breakableSides[136] = true;
 			breakableSides[149] = true;
-            breakableSides[380] = true;
-            breakableSides[386] = true;
-            breakableSides[387] = true;
+			breakableSides[380] = true;
+			breakableSides[386] = true;
+			breakableSides[387] = true;
 			breakableSides[425] = true;
 
 			breakableWall[4] = true;
@@ -995,10 +995,10 @@ namespace History
 			breakableWall[245] = true;
 			breakableWall[246] = true;
 			breakableWall[334] = true;
-            breakableWall[380] = true;
-            breakableWall[395] = true;
+			breakableWall[380] = true;
+			breakableWall[395] = true;
 			breakableWall[440] = true;
-        }
+		}
 		bool regionCheck(TSPlayer who, int x, int y)
 		{
 			return who.Group.HasPermission(Permissions.editregion) || TShock.Regions.CanBuild(x, y, who);
@@ -1058,24 +1058,24 @@ namespace History
 								if (Main.tile[X + 2, Y].active() && breakableSides[Main.tile[X + 2, Y].type])
 									logEdit(0, Main.tile[X + 2, Y], X + 2, Y, 0, account, done);
 								break;
-                            case 53: //sand, silt, slush
-                            case 112:
-                            case 116:
-                            case 123:
-                            case 224:
-                            case 234:
-                                List<int> types = new List<int>() { 53, 112, 116, 123, 224, 234 };
-                                int topY = Y;//Find top of stack
-                                while (topY >= 0 && Main.tile[X, topY].active() && types.Contains(Main.tile[X, topY].type))
-                                    topY--;
-                                //Break anything at top
-                                if (Main.tile[X, topY].active() && breakableBottom[Main.tile[X, topY].type])
-                                    logEdit(0, Main.tile[X, topY], X, topY, 0, account, done);
-                                //TO-DO: Atm, we'll just keep the record saying they broke the top block. We lose some data (type of sand), but I don't feel like
-                                // making a workaround for that just yet.
-                                topY++;
-                                return;
-                            case 239://bars
+							case 53: //sand, silt, slush
+							case 112:
+							case 116:
+							case 123:
+							case 224:
+							case 234:
+								List<int> types = new List<int>() { 53, 112, 116, 123, 224, 234 };
+								int topY = Y;//Find top of stack
+								while (topY >= 0 && Main.tile[X, topY].active() && types.Contains(Main.tile[X, topY].type))
+									topY--;
+								//Break anything at top
+								if (Main.tile[X, topY].active() && breakableBottom[Main.tile[X, topY].type])
+									logEdit(0, Main.tile[X, topY], X, topY, 0, account, done);
+								//TO-DO: Atm, we'll just keep the record saying they broke the top block. We lose some data (type of sand), but I don't feel like
+								// making a workaround for that just yet.
+								topY++;
+								return;
+							case 239://bars
 								topY = Y;//Find top of stack
 								while (topY >= 0 && Main.tile[X, topY].active() && Main.tile[X, topY].type == 239)
 									topY--;
@@ -1100,7 +1100,7 @@ namespace History
 									{
 										if (Main.tile[X + i, Y + j].active() && Main.tile[X + i, Y + j].type == 314)
 										{
-											Queue(account, X + i, Y + j, 0, 314, (byte)(Main.tile[X + i, Y + j].frameX+1), (short)(Main.tile[X + i, Y + j].color() + ((Main.tile[X + i, Y + j].frameY+1) << 8)));
+											Queue(account, X + i, Y + j, 0, 314, (byte)(Main.tile[X + i, Y + j].frameX + 1), (short)(Main.tile[X + i, Y + j].color() + ((Main.tile[X + i, Y + j].frameY + 1) << 8)));
 										}
 									}
 								return;
@@ -1228,9 +1228,9 @@ namespace History
 					//save previous state of slope
 					Queue(account, X, Y, 14, type, 0, (short)(((Main.tile[X, Y].halfBrick() ? 1 : 0) << 7) + (Main.tile[X, Y].slope() << 8)));
 					break;
-                case 15:
-                    Queue(account, X, Y, 15);
-                    break;
+				case 15:
+					Queue(account, X, Y, 15);
+					break;
 			}
 		}
 
@@ -1240,161 +1240,161 @@ namespace History
 			{
 				switch (e.MsgID)
 				{
-                    case PacketTypes.PlaceItemFrame:
-                        //TSPlayer.All.SendInfoMessage("Placing item frame!");
-                        break;
-                    case PacketTypes.PlaceTileEntity:
-                        //TSPlayer.All.SendInfoMessage("Placing tile entity!");
-                        break;
-                    case PacketTypes.UpdateTileEntity:
-                        //TSPlayer.All.SendInfoMessage("Updating tile entity!");
-                        break;
-                    case PacketTypes.Tile:
+					case PacketTypes.PlaceItemFrame:
+						//TSPlayer.All.SendInfoMessage("Placing item frame!");
+						break;
+					case PacketTypes.PlaceTileEntity:
+						//TSPlayer.All.SendInfoMessage("Placing tile entity!");
+						break;
+					case PacketTypes.UpdateTileEntity:
+						//TSPlayer.All.SendInfoMessage("Updating tile entity!");
+						break;
+					case PacketTypes.Tile:
 						{
 							byte etype = e.Msg.readBuffer[e.Index];
 							int X = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 1);
 							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 3);
 							ushort type = BitConverter.ToUInt16(e.Msg.readBuffer, e.Index + 5);
 							byte style = e.Msg.readBuffer[e.Index + 7];
-                            if (type == 1 && (etype == 0 || etype == 4))
-                            {
-                                if (Main.tile[X, Y].type == 21 || Main.tile[X, Y].type == 88)
-                                    return; //Chests and dressers handled separately
-                                //else if (Main.tile[X, Y].type == 2699)
-                                    //TSPlayer.All.SendInfoMessage("Weapon rack place");
-                                    }
-                            //DEBUG
-                            //TSPlayer.All.SendInfoMessage($"Type: {type}");
+							if (type == 1 && (etype == 0 || etype == 4))
+							{
+								if (Main.tile[X, Y].type == 21 || Main.tile[X, Y].type == 88)
+									return; //Chests and dressers handled separately
+								//else if (Main.tile[X, Y].type == 2699)
+								//TSPlayer.All.SendInfoMessage("Weapon rack place");
+							}
+							//DEBUG
+							//TSPlayer.All.SendInfoMessage($"Type: {type}");
 							if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
 							{
 								if (AwaitingHistory[e.Msg.whoAmI])
 								{
 									AwaitingHistory[e.Msg.whoAmI] = false;
 									TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-                                    //DEBUG
-                                    //TSPlayer.All.SendInfoMessage($"X: {X}, Y: {Y}, FrameX: {Main.tile[X, Y].frameX}, FrameY: {Main.tile[X, Y].frameY}");
-                                    e.Handled = true;
-                                    //END DEBUG
-                                    if (type == 0 && (etype == 0 || etype == 4))
+									//DEBUG
+									//TSPlayer.All.SendInfoMessage($"X: {X}, Y: {Y}, FrameX: {Main.tile[X, Y].frameX}, FrameY: {Main.tile[X, Y].frameY}");
+									e.Handled = true;
+									//END DEBUG
+									if (type == 0 && (etype == 0 || etype == 4))
 										adjustFurniture(ref X, ref Y, ref style);
-                                    CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
+									CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
 									e.Handled = true;
 								}
 								else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
 								{
-                                    //effect only
-                                    if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
+									//effect only
+									if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
 										return;
 									logEdit(etype, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].User.Name, new List<Vector2>(), style);
 								}
 							}
 						}
 						break;
-                    case PacketTypes.PlaceObject:
-                        {
-                            int X = BitConverter.ToInt16(e.Msg.readBuffer, e.Index);
-                            int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 2);
-                            ushort type = BitConverter.ToUInt16(e.Msg.readBuffer, e.Index + 4);
-                            int style = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 6);
-                            //DEBUG:
-                            //TSPlayer.All.SendInfoMessage($"Style: {style}");
-                            int alt = (byte)e.Msg.readBuffer[e.Index + 8];
-                            //TSPlayer.All.SendInfoMessage($"Alternate: {alt}");
-                            int rand = (sbyte)e.Msg.readBuffer[e.Index + 9];
-                            //TSPlayer.All.SendInfoMessage($"Random: {rand}");
-                            bool dir = BitConverter.ToBoolean(e.Msg.readBuffer, e.Index + 10);
-                            if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
-                            {
-                                if (AwaitingHistory[e.Msg.whoAmI])
-                                {
-                                    AwaitingHistory[e.Msg.whoAmI] = false;
-                                    TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-                                    CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-                                    e.Handled = true;
-                                }
-                                else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-                                {
-                                    logEdit(1, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].User.Name, new List<Vector2>(), (byte)style, alt, rand, dir);
-                                }
-                            }
-                        }
-                        break;
+					case PacketTypes.PlaceObject:
+						{
+							int X = BitConverter.ToInt16(e.Msg.readBuffer, e.Index);
+							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 2);
+							ushort type = BitConverter.ToUInt16(e.Msg.readBuffer, e.Index + 4);
+							int style = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 6);
+							//DEBUG:
+							//TSPlayer.All.SendInfoMessage($"Style: {style}");
+							int alt = (byte)e.Msg.readBuffer[e.Index + 8];
+							//TSPlayer.All.SendInfoMessage($"Alternate: {alt}");
+							int rand = (sbyte)e.Msg.readBuffer[e.Index + 9];
+							//TSPlayer.All.SendInfoMessage($"Random: {rand}");
+							bool dir = BitConverter.ToBoolean(e.Msg.readBuffer, e.Index + 10);
+							if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
+							{
+								if (AwaitingHistory[e.Msg.whoAmI])
+								{
+									AwaitingHistory[e.Msg.whoAmI] = false;
+									TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
+									CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
+									e.Handled = true;
+								}
+								else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
+								{
+									logEdit(1, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].User.Name, new List<Vector2>(), (byte)style, alt, rand, dir);
+								}
+							}
+						}
+						break;
 					//chest delete
 					case PacketTypes.TileKill:
 						{
 							byte flag = e.Msg.readBuffer[e.Index];
 							int X = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 1);
 							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 3);
-                            int style = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 5);
-                            byte style2 = (byte)style;
+							int style = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 5);
+							byte style2 = (byte)style;
 							if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
 							{
-                                //PlaceChest
-                                if (flag == 0 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-                                {
-                                    if (AwaitingHistory[e.Msg.whoAmI])
-                                    {
-                                        AwaitingHistory[e.Msg.whoAmI] = false;
-                                        TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-                                        CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-                                        e.Handled = true;
-                                    }
-                                    else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-                                    {
-                                        logEdit(1, Main.tile[X, Y], X, Y, 21, TShock.Players[e.Msg.whoAmI].User.Name, new List<Vector2>(), style2);
-                                    }
-                                    return;
-                                }
-                                //KillChest
-                                if (flag == 1 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y) && Main.tile[X, Y].type == 21)
+								//PlaceChest
+								if (flag == 0 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
 								{
-                                    if (AwaitingHistory[e.Msg.whoAmI])
-                                    {
-                                        AwaitingHistory[e.Msg.whoAmI] = false;
-                                        TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-                                        adjustFurniture(ref X, ref Y, ref style2);
-                                        CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-                                        e.Handled = true;
-                                        return;
-                                    }
-                                    adjustFurniture(ref X, ref Y, ref style2);
+									if (AwaitingHistory[e.Msg.whoAmI])
+									{
+										AwaitingHistory[e.Msg.whoAmI] = false;
+										TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
+										CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
+										e.Handled = true;
+									}
+									else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
+									{
+										logEdit(1, Main.tile[X, Y], X, Y, 21, TShock.Players[e.Msg.whoAmI].User.Name, new List<Vector2>(), style2);
+									}
+									return;
+								}
+								//KillChest
+								if (flag == 1 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y) && Main.tile[X, Y].type == 21)
+								{
+									if (AwaitingHistory[e.Msg.whoAmI])
+									{
+										AwaitingHistory[e.Msg.whoAmI] = false;
+										TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
+										adjustFurniture(ref X, ref Y, ref style2);
+										CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
+										e.Handled = true;
+										return;
+									}
+									adjustFurniture(ref X, ref Y, ref style2);
 									Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 0, Main.tile[X, Y].type, style2, Main.tile[X, Y].color());
-                                    return;
-                                }
-                                //PlaceDresser
-                                if (flag == 2 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-                                {
-                                    if (AwaitingHistory[e.Msg.whoAmI])
-                                    {
-                                        AwaitingHistory[e.Msg.whoAmI] = false;
-                                        TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-                                        CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-                                        e.Handled = true;
-                                    }
-                                    else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-                                    {
-                                        logEdit(1, Main.tile[X, Y], X, Y, 88, TShock.Players[e.Msg.whoAmI].User.Name, new List<Vector2>(), style2);
-                                    }
-                                    return;
-                                }
-                                //KillDresser
-                                if (flag == 3 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y) && Main.tile[X, Y].type == 88)
-                                {
-                                    if (AwaitingHistory[e.Msg.whoAmI])
-                                    {
-                                        AwaitingHistory[e.Msg.whoAmI] = false;
-                                        TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-                                        adjustFurniture(ref X, ref Y, ref style2);
-                                        CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-                                        e.Handled = true;
-                                        return;
-                                    }
-                                    adjustFurniture(ref X, ref Y, ref style2);
-                                    Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 0, Main.tile[X, Y].type, style2, Main.tile[X, Y].color());
-                                    return;
-                                }
+									return;
+								}
+								//PlaceDresser
+								if (flag == 2 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
+								{
+									if (AwaitingHistory[e.Msg.whoAmI])
+									{
+										AwaitingHistory[e.Msg.whoAmI] = false;
+										TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
+										CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
+										e.Handled = true;
+									}
+									else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
+									{
+										logEdit(1, Main.tile[X, Y], X, Y, 88, TShock.Players[e.Msg.whoAmI].User.Name, new List<Vector2>(), style2);
+									}
+									return;
+								}
+								//KillDresser
+								if (flag == 3 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y) && Main.tile[X, Y].type == 88)
+								{
+									if (AwaitingHistory[e.Msg.whoAmI])
+									{
+										AwaitingHistory[e.Msg.whoAmI] = false;
+										TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
+										adjustFurniture(ref X, ref Y, ref style2);
+										CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
+										e.Handled = true;
+										return;
+									}
+									adjustFurniture(ref X, ref Y, ref style2);
+									Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 0, Main.tile[X, Y].type, style2, Main.tile[X, Y].color());
+									return;
+								}
 
-                            }
+							}
 						}
 						break;
 					case PacketTypes.PaintTile:
@@ -1404,7 +1404,7 @@ namespace History
 							byte color = e.Msg.readBuffer[e.Index + 4];
 							if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
 							{
-                                Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 25, color, 0, Main.tile[X, Y].color());
+								Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 25, color, 0, Main.tile[X, Y].color());
 							}
 						}
 						break;
@@ -1415,7 +1415,7 @@ namespace History
 							byte color = e.Msg.readBuffer[e.Index + 4];
 							if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
 							{
-                                Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 26, color, 0, Main.tile[X, Y].wallColor());
+								Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 26, color, 0, Main.tile[X, Y].wallColor());
 							}
 						}
 						break;
@@ -1426,54 +1426,54 @@ namespace History
 							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 4);
 							byte s = 0;
 							adjustFurniture(ref X, ref Y, ref s); //Adjust coords so history picks it up, readSign() adjusts back to origin anyway
-                            Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 27, data: signI, text: Main.sign[signI].text);
+							Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 27, data: signI, text: Main.sign[signI].text);
 						}
 						break;
 				}
 			}
 		}
-        void OnInitialize(EventArgs e)
-        {
-            TShockAPI.Commands.ChatCommands.Add(new Command("history.get", HistoryCmd, "history"));
-            TShockAPI.Commands.ChatCommands.Add(new Command("history.prune", Prune, "prunehist"));
-            TShockAPI.Commands.ChatCommands.Add(new Command("history.reenact", Reenact, "reenact"));
-            TShockAPI.Commands.ChatCommands.Add(new Command("history.rollback", Rollback, "rollback"));
-            TShockAPI.Commands.ChatCommands.Add(new Command("history.rollback", Undo, "rundo"));
+		void OnInitialize(EventArgs e)
+		{
+			TShockAPI.Commands.ChatCommands.Add(new Command("history.get", HistoryCmd, "history"));
+			TShockAPI.Commands.ChatCommands.Add(new Command("history.prune", Prune, "prunehist"));
+			TShockAPI.Commands.ChatCommands.Add(new Command("history.reenact", Reenact, "reenact"));
+			TShockAPI.Commands.ChatCommands.Add(new Command("history.rollback", Rollback, "rollback"));
+			TShockAPI.Commands.ChatCommands.Add(new Command("history.rollback", Undo, "rundo"));
 
-            switch (TShock.Config.StorageType.ToLower())
-            {
-                case "mysql":
-                    string[] host = TShock.Config.MySqlHost.Split(':');
-                    Database = new MySqlConnection()
-                    {
-                        ConnectionString = string.Format("Server={0}; Port={1}; Database={2}; Uid={3}; Pwd={4};",
-                            host[0],
-                            host.Length == 1 ? "3306" : host[1],
-                            TShock.Config.MySqlDbName,
-                            TShock.Config.MySqlUsername,
-                            TShock.Config.MySqlPassword)
-                    };
-                    break;
-                case "sqlite":
-                    string sql = Path.Combine(TShock.SavePath, "history.sqlite");
-                    Database = new SqliteConnection(string.Format("uri=file://{0},Version=3", sql));
-                    break;
-            }
-            SqlTableCreator sqlcreator = new SqlTableCreator(Database,
-                Database.GetSqlType() == SqlType.Sqlite ? (IQueryBuilder)new SqliteQueryCreator() : new MysqlQueryCreator());
-            sqlcreator.EnsureTableStructure(new SqlTable("History",
-                new SqlColumn("Time", MySqlDbType.Int32),
-                new SqlColumn("Account", MySqlDbType.VarChar) { Length = 50 },
-                new SqlColumn("Action", MySqlDbType.Int32),
-                new SqlColumn("XY", MySqlDbType.Int32),
-                new SqlColumn("Data", MySqlDbType.Int32),
-                new SqlColumn("Style", MySqlDbType.Int32),
-                new SqlColumn("Paint", MySqlDbType.Int32),
-                new SqlColumn("WorldID", MySqlDbType.Int32),
-                new SqlColumn("Text", MySqlDbType.VarChar) { Length = 50 },
-                new SqlColumn("Alternate", MySqlDbType.Int32),
-                new SqlColumn("Random", MySqlDbType.Int32),
-                new SqlColumn("Direction", MySqlDbType.Int32)));
+			switch (TShock.Config.StorageType.ToLower())
+			{
+				case "mysql":
+					string[] host = TShock.Config.MySqlHost.Split(':');
+					Database = new MySqlConnection()
+					{
+						ConnectionString = string.Format("Server={0}; Port={1}; Database={2}; Uid={3}; Pwd={4};",
+							host[0],
+							host.Length == 1 ? "3306" : host[1],
+							TShock.Config.MySqlDbName,
+							TShock.Config.MySqlUsername,
+							TShock.Config.MySqlPassword)
+					};
+					break;
+				case "sqlite":
+					string sql = Path.Combine(TShock.SavePath, "history.sqlite");
+					Database = new SqliteConnection(string.Format("uri=file://{0},Version=3", sql));
+					break;
+			}
+			SqlTableCreator sqlcreator = new SqlTableCreator(Database,
+				Database.GetSqlType() == SqlType.Sqlite ? (IQueryBuilder)new SqliteQueryCreator() : new MysqlQueryCreator());
+			sqlcreator.EnsureTableStructure(new SqlTable("History",
+				new SqlColumn("Time", MySqlDbType.Int32),
+				new SqlColumn("Account", MySqlDbType.VarChar) { Length = 50 },
+				new SqlColumn("Action", MySqlDbType.Int32),
+				new SqlColumn("XY", MySqlDbType.Int32),
+				new SqlColumn("Data", MySqlDbType.Int32),
+				new SqlColumn("Style", MySqlDbType.Int32),
+				new SqlColumn("Paint", MySqlDbType.Int32),
+				new SqlColumn("WorldID", MySqlDbType.Int32),
+				new SqlColumn("Text", MySqlDbType.VarChar) { Length = 50 },
+				new SqlColumn("Alternate", MySqlDbType.Int32),
+				new SqlColumn("Random", MySqlDbType.Int32),
+				new SqlColumn("Direction", MySqlDbType.Int32)));
 
 			string datePath = Path.Combine(TShock.SavePath, "date.dat");
 			if (!File.Exists(datePath))
