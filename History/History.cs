@@ -19,7 +19,7 @@ using TShockAPI.DB;
 
 namespace History
 {
-	[ApiVersion(1, 22)]
+	[ApiVersion(1, 23)]
 	public class History : TerrariaPlugin
 	{
 		public static List<Action> Actions = new List<Action>(SaveCount);
@@ -30,7 +30,7 @@ namespace History
 		private bool[] AwaitingHistory = new bool[256];
 		public override string Author
 		{
-			get { return "Maintained by Zaicon"; }
+			get { return "Maintained by Cracker64 & Zaicon"; }
 		}
 		CancellationTokenSource Cancel = new CancellationTokenSource();
 		private BlockingCollection<HCommand> CommandQueue = new BlockingCollection<HCommand>();
@@ -81,7 +81,6 @@ namespace History
 			}
 			Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y, paint = paint, style = style, text = text, alt = (byte)alternate, direction = direction, random = (sbyte)random });
 		}
-		// 314 Tracks, lots of styles, finished?
 		// 334 weapon rack done? weapon styles?
 		static void getPlaceData(ushort type, ref int which, ref int div)
 		{
@@ -106,16 +105,23 @@ namespace History
 				case 178: //gems
 				case 184:
 				case 239: //bars
+				case 419:
 					which = 0;
 					div = 18;
 					break;
 				case 19: //platforms
 				case 135: //pressure plates
-				case 136://switch (state)
+				case 136: //switch (state)
 				case 137: //traps
 				case 141: //explosives
 				case 210: //land mine
-                case 380: //planter box
+				case 380: //planter box
+				case 420: //L Gate
+				case 423: // L Sensor
+				case 424: //Junction Box
+				case 428: // Weighted Presure Plate
+				case 429: //Wire bulb
+				case 445: //Pixel Box
 					which = 1;
 					div = 18;
 					break;
@@ -153,6 +159,9 @@ namespace History
                 case 386: //trapdoor open
                 case 410: //lunar monolith
                 case 411: //Detonator
+				case 425: // Announcement (Sign)
+				case 441:
+				case 443: //Geyser
 					which = 0;
 					div = 36;
 					break;
@@ -238,8 +247,9 @@ namespace History
 					which = 1;
 					div = 54;
 					break;
-				case 240: //painting, style stored in both
+				case 240: //3x3 painting, style stored in both
 				case 334:
+				case 440:
 					which = 2;
 					div = 54;
 					break;
@@ -269,10 +279,10 @@ namespace History
 			Vector2 dest;
 			switch (type)//(x,y) is from top left
 			{
-				case 42: 
-				case 16: 
-				case 18: 
+				case 16:
+				case 18:
 				case 29: 
+				case 42: 
 				case 91: 
 				case 103: 
 				case 134: 
@@ -283,18 +293,20 @@ namespace History
                 case 388:
                 case 389:
                 case 395:
+				case 443:
 					dest = new Vector2(0, 0);
 					break;
-				case 139: 
+				case 15:
+				case 21: 
 				case 35: 
-                case 21: 
+                case 55:
 				case 85: 
-                case 55: 
+				case 139: 
                 case 216: 
 				case 245: 
 				case 338: 
-				case 15:
                 case 390:
+				case 425:
 					dest = new Vector2(0, 1);
 					break;
 				case 34:
@@ -360,7 +372,7 @@ namespace History
 				case 319:
 				case 334:
 				case 335:
-				case 339:// (1,1)
+				case 339:
                 case 354:
                 case 355:
                 case 360:
@@ -376,17 +388,19 @@ namespace History
                 case 394:
                 case 405:
                 case 411:
+				case 440:
+				case 441:// (1,1)
 					dest = new Vector2(1, 1);
 					break;
 				case 106:
+				case 209:
 				case 212:
 				case 219:
 				case 220:
 				case 228:
 				case 231:
 				case 243:
-				case 209:
-				case 247:// (1,2)
+				case 247:
 				case 283:
 				case 300:
 				case 301:
@@ -402,7 +416,7 @@ namespace History
                 case 378:
                 case 406:
                 case 410:
-                case 412:
+				case 412:// (1,2)
                     dest = new Vector2(1, 2);
 					break;
 				case 101:
@@ -412,14 +426,14 @@ namespace History
 				case 242:// (2,2)
 					dest = new Vector2(2, 2);
 					break;
-				case 128:
+				case 10:
+				case 11: // Door, Ignore framex*18 for 10, not 11
+				case 93:
 				case 105:
+				case 128:
 				case 269:
 				case 320:
-				case 337:
-				case 10:
-				case 11:// Door, Ignore framex*18 for 10, not 11
-				case 93: // (0,2)
+				case 337: // (0,2)
 					dest = new Vector2(0, 2);
 					break;
 				case 207:
@@ -488,6 +502,7 @@ namespace History
 				case 103:
 				case 134:
                 case 387:
+				case 443:
 					dim = new Vector2(1, 0);
 					break;
 				case 21: //2x2
@@ -529,6 +544,8 @@ namespace History
                 case 386:
                 case 395:
                 case 411:
+				case 425:
+				case 441:
 					dim = new Vector2(1, 1);
 					break;
 				case 105: //2x3
@@ -622,6 +639,7 @@ namespace History
 				case 334:
                 case 406:
                 case 412:
+				case 440:
 					dim = new Vector2(2, 2);
 					break;
 				case 101:
@@ -692,7 +710,7 @@ namespace History
 					rely = (frameY) / 18;
 					break;
 			}
-			if (tile.type == 55)//sign
+			if (tile.type == 55 || tile.type == 425)//sign
 			{
 				switch (style)
 				{
@@ -934,6 +952,11 @@ namespace History
             breakableBottom[410] = true;
             breakableBottom[413] = true;
             breakableBottom[414] = true;
+			breakableBottom[419] = true;
+			breakableBottom[425] = true;
+			breakableBottom[441] = true;
+			breakableBottom[442] = true;
+			breakableBottom[443] = true;
 
             breakableTop[10] = true;
 			breakableTop[11] = true;
@@ -950,6 +973,8 @@ namespace History
             breakableTop[380] = true;
             breakableTop[388] = true;
             breakableTop[389] = true;
+			breakableTop[425] = true;
+			breakableTop[443] = true;
 
             breakableSides[4] = true;
 			breakableSides[55] = true;
@@ -959,6 +984,7 @@ namespace History
             breakableSides[380] = true;
             breakableSides[386] = true;
             breakableSides[387] = true;
+			breakableSides[425] = true;
 
 			breakableWall[4] = true;
 			breakableWall[132] = true;
@@ -971,6 +997,7 @@ namespace History
 			breakableWall[334] = true;
             breakableWall[380] = true;
             breakableWall[395] = true;
+			breakableWall[440] = true;
         }
 		bool regionCheck(TSPlayer who, int x, int y)
 		{
@@ -1000,6 +1027,7 @@ namespace History
 								break;
 							case 55: //Signs
 							case 85: //Gravestones
+							case 425: // Announcement
 								int signI = Sign.ReadSign(X, Y);
 								Queue(account, X, Y, 0, tileType, pStyle, (short)(Main.tile[X, Y].color()), text: Main.sign[signI].text);
 								return;
@@ -1255,7 +1283,6 @@ namespace History
 								else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
 								{
                                     //effect only
-                                    adjustFurniture(ref X, ref Y, ref style);
                                     if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
 										return;
 									logEdit(etype, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].User.Name, new List<Vector2>(), style);
