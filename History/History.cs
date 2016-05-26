@@ -1231,6 +1231,18 @@ namespace History
 				case 15:
 					Queue(account, X, Y, 15);
 					break;
+				case 16:
+					if (!Main.tile[X, Y].wire4())
+					{
+						Queue(account, X, Y, 16);
+					}
+					break;
+				case 17:
+					if (Main.tile[X, Y].wire4())
+					{
+						Queue(account, X, Y, 17);
+					}
+					break;
 			}
 		}
 
@@ -1429,7 +1441,127 @@ namespace History
 							Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 27, data: signI, text: Main.sign[signI].text);
 						}
 						break;
+					case PacketTypes.MassWireOperation:
+						{
+							int X1 = BitConverter.ToInt16(e.Msg.readBuffer, e.Index);
+							int Y1 = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 2);
+							int X2 = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 4);
+							int Y2 = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 6);
+							byte toolMode = e.Msg.readBuffer[e.Index + 8];
+							//Modes Red=1, Green=2, Blue=4, Yellow=8, Actuator=16, Cutter=32
+
+							bool direction = Main.player[e.Msg.whoAmI].direction == 1;
+							int minX = X1, maxX = X2, minY = Y1, maxY = Y2;
+							int drawX = direction ? minX : maxX;
+							int drawY = direction ? maxY : minY;
+							if (X2 < X1)
+							{
+								minX = X2;
+								maxX = X1;
+							}
+							if (Y2 < Y1)
+							{
+								minY = Y2;
+								maxY = Y1;
+							}
+							int wires = 0, acts = 0;
+							if ((toolMode & 32) == 0)
+								countPlayerWires(Main.player[e.Msg.whoAmI], ref wires, ref acts);
+
+							for (int starty = minY; starty <= maxY; starty++)
+							{
+								if (regionCheck(TShock.Players[e.Msg.whoAmI], drawX, starty))
+								{
+									logAdvancedWire(drawX, starty, toolMode, TShock.Players[e.Msg.whoAmI].User.Name, ref wires, ref acts);
+								}
+							}
+							for (int startx = minX; startx <= maxX; startx++)
+							{
+								if (startx == drawX)
+									continue;
+								if (regionCheck(TShock.Players[e.Msg.whoAmI], startx, drawY))
+								{
+									logAdvancedWire(startx, drawY, toolMode, TShock.Players[e.Msg.whoAmI].User.Name, ref wires, ref acts);
+								}
+							}
+						}
+						break;
 				}
+			}
+		}
+		void countPlayerWires(Player p, ref int wires, ref int acts)
+		{
+			wires = 0;
+			acts = 0;
+			for (int i = 0; i < 58; i++)
+			{
+				if (p.inventory[i].type == 530)
+				{
+					wires += p.inventory[i].stack;
+				}
+				if (p.inventory[i].type == 849)
+				{
+					acts += p.inventory[i].stack;
+				}
+			}
+		}
+		void logAdvancedWire(int x, int y, byte mode, string account, ref int wires, ref int acts)
+		{
+			bool delete = (mode & 32) == 32;
+			if ((mode & 1) == 1 && Main.tile[x, y].wire() == delete) // RED
+			{
+				if (!delete)
+				{
+					if (wires <= 0)
+						return;
+					wires--;
+				}
+				//5 6
+				Queue(account, x, y, (byte)(delete ? 6 : 5));
+			}
+			if ((mode & 2) == 2 && Main.tile[x, y].wire3() == delete) // GREEN
+			{
+				if (!delete)
+				{
+					if (wires <= 0)
+						return;
+					wires--;
+				}
+				//12 13
+				Queue(account, x, y, (byte)(delete ? 13 : 12));
+			}
+			if ((mode & 4) == 4 && Main.tile[x, y].wire2() == delete) // BLUE
+			{
+				if (!delete)
+				{
+					if (wires <= 0)
+						return;
+					wires--;
+				}
+				//10 11
+				Queue(account, x, y, (byte)(delete ? 11 : 10));
+			}
+			if ((mode & 8) == 8 && Main.tile[x, y].wire4() == delete) // YELLOW
+			{
+				if (!delete)
+				{
+					if (wires <= 0)
+						return;
+					wires--;
+				}
+				//16 and 17
+				Queue(account, x, y, (byte)(delete ? 17 : 16));
+			}
+			if ((mode & 16) == 16 && Main.tile[x, y].actuator() == delete) // ACTUATOR
+			{
+				if (!delete)
+				{
+					if (acts <= 0)
+						return;
+					acts--;
+				}
+				//8 9
+				Queue(account, x, y, (byte)(delete ? 9 : 8));
 			}
 		}
 		void OnInitialize(EventArgs e)

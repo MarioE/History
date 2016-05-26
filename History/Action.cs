@@ -125,6 +125,20 @@ namespace History
                     //Uh wtf does "frame track" mean
                     //Too lazy to find atm
                     break;
+				case 16:
+					if (!Main.tile[x, y].wire4())
+					{
+						WorldGen.PlaceWire4(x, y);
+						TSPlayer.All.SendTileSquare(x, y, 1);
+					}
+					break;
+				case 17:
+					if (Main.tile[x, y].wire4())
+					{
+						WorldGen.KillWire4(x, y);
+						TSPlayer.All.SendTileSquare(x, y, 1);
+					}
+					break;
 				case 25://paint tile
 					if (Main.tile[x, y].active())
 					{
@@ -320,6 +334,20 @@ namespace History
                 case 15: //frame track
                     //see above
                     break;
+				case 16:
+					if (Main.tile[x, y].wire4())
+					{
+						WorldGen.KillWire4(x, y);
+						TSPlayer.All.SendTileSquare(x, y, 1);
+					}
+					break;
+				case 17:
+					if (!Main.tile[x, y].wire4())
+					{
+						WorldGen.PlaceWire4(x, y);
+						TSPlayer.All.SendTileSquare(x, y, 1);
+					}
+					break;
 				case 25://paint tile
 					if (Main.tile[x, y].active())
 					{
@@ -383,10 +411,12 @@ namespace History
 				case 5:
 				case 10:
 				case 12:
+				case 16:
 					return string.Format("{0} {1} placed wire. ({2})", date, account, dhms);
 				case 6:
 				case 11:
 				case 13:
+				case 17:
 					return string.Format("{0} {1} broke wire. ({2})", date, account, dhms);
 				case 7:
 				case 14:

@@ -132,11 +132,13 @@ namespace History.Commands
 					case 5:
 					case 10:
 					case 12:
+					case 16:
 						WirePlaced.Add(action);
 						break;
 					case 6:
 					case 11:
 					case 13:
+					case 17:
 						WireDestroyed.Add(action);
 						break;
 					case 7:
