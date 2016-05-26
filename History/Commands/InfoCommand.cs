@@ -199,25 +199,25 @@ namespace History.Commands
 			StringBuilder InfoPrep = new StringBuilder();
 			InfoPrep.Append(account);
 
-			if (TileModified.Count > 0) InfoPrep.Append(" modified " + TileModified.Count + " tile" +		(TileModified.Count == 1 ? "" : "s")	 + ",");
-			if (TileDestroyed.Count > 0) InfoPrep.Append(" destroyed " + TileDestroyed.Count + " tile" +	(TileDestroyed.Count == 1 ? "" : "s")	 + ",");
-			if (TilePlaced.Count > 0) InfoPrep.Append(" placed " + TilePlaced.Count + " tile" +				(TilePlaced.Count == 1 ? "" : "s")		 + ",");
+			if (TileModified.Count > 0) InfoPrep.Append(" modified " + TileModified.Count + " tile" + (TileModified.Count == 1 ? "" : "s") + ",");
+			if (TileDestroyed.Count > 0) InfoPrep.Append(" destroyed " + TileDestroyed.Count + " tile" + (TileDestroyed.Count == 1 ? "" : "s") + ",");
+			if (TilePlaced.Count > 0) InfoPrep.Append(" placed " + TilePlaced.Count + " tile" + (TilePlaced.Count == 1 ? "" : "s") + ",");
 
-			if (WallModified.Count > 0) InfoPrep.Append(" modified " + WallModified.Count + " wall" +		(WallModified.Count == 1 ? "" : "s")	 + ",");
-			if (WallDestroyed.Count > 0) InfoPrep.Append(" destroyed " + WallDestroyed.Count + " wall" +	(WallDestroyed.Count == 1 ? "" : "s")	 + ",");
-			if (WallPlaced.Count > 0) InfoPrep.Append(" placed " + WallPlaced.Count + " wall" +				(WallPlaced.Count == 1 ? "" : "s")		 + ",");
+			if (WallModified.Count > 0) InfoPrep.Append(" modified " + WallModified.Count + " wall" + (WallModified.Count == 1 ? "" : "s") + ",");
+			if (WallDestroyed.Count > 0) InfoPrep.Append(" destroyed " + WallDestroyed.Count + " wall" + (WallDestroyed.Count == 1 ? "" : "s") + ",");
+			if (WallPlaced.Count > 0) InfoPrep.Append(" placed " + WallPlaced.Count + " wall" + (WallPlaced.Count == 1 ? "" : "s") + ",");
 
-			if (WireModified.Count > 0) InfoPrep.Append(" modified " + WireModified.Count + " wire" +		(WireModified.Count == 1 ? "" : "s")	 + ",");
-			if (WireDestroyed.Count > 0) InfoPrep.Append(" destroyed " + WireDestroyed.Count + " wire" +	(WireDestroyed.Count == 1 ? "" : "s")	 + ",");
-			if (WirePlaced.Count > 0) InfoPrep.Append(" placed " + WirePlaced.Count + " wire" +				(WirePlaced.Count == 1 ? "" : "s")		 + ",");
+			if (WireModified.Count > 0) InfoPrep.Append(" modified " + WireModified.Count + " wire" + (WireModified.Count == 1 ? "" : "s") + ",");
+			if (WireDestroyed.Count > 0) InfoPrep.Append(" destroyed " + WireDestroyed.Count + " wire" + (WireDestroyed.Count == 1 ? "" : "s") + ",");
+			if (WirePlaced.Count > 0) InfoPrep.Append(" placed " + WirePlaced.Count + " wire" + (WirePlaced.Count == 1 ? "" : "s") + ",");
 
-			if (ActuatorModified.Count > 0) InfoPrep.Append(" modified " + ActuatorModified.Count + " actuator" +		(ActuatorModified.Count == 1 ? "" : "s")	 + ",");
-			if (ActuatorDestroyed.Count > 0) InfoPrep.Append(" destroyed " + ActuatorDestroyed.Count + " actuator" +	(ActuatorDestroyed.Count == 1 ? "" : "s")	 + ",");
-			if (ActuatorPlaced.Count > 0) InfoPrep.Append(" placed " + ActuatorPlaced.Count + " actuator" +				(ActuatorPlaced.Count == 1 ? "" : "s")		 + ",");
+			if (ActuatorModified.Count > 0) InfoPrep.Append(" modified " + ActuatorModified.Count + " actuator" + (ActuatorModified.Count == 1 ? "" : "s") + ",");
+			if (ActuatorDestroyed.Count > 0) InfoPrep.Append(" destroyed " + ActuatorDestroyed.Count + " actuator" + (ActuatorDestroyed.Count == 1 ? "" : "s") + ",");
+			if (ActuatorPlaced.Count > 0) InfoPrep.Append(" placed " + ActuatorPlaced.Count + " actuator" + (ActuatorPlaced.Count == 1 ? "" : "s") + ",");
 
 			if (Painted.Count > 0) InfoPrep.Append(" painted " + Painted.Count + " tile" + (Painted.Count == 1 ? "" : "s") + "/wall" + (Painted.Count == 1 ? "" : "s") + ",");
-			if (SignModified.Count > 0) InfoPrep.Append(" modified " + SignModified.Count + " sign" +		(SignModified.Count == 1 ? "" : "s")	 + ",");
-			if (Other.Count > 0) InfoPrep.Append(" " + Other.Count + " other edit" +						(Other.Count == 1 ? "" : "s")			 + ",");
+			if (SignModified.Count > 0) InfoPrep.Append(" modified " + SignModified.Count + " sign" + (SignModified.Count == 1 ? "" : "s") + ",");
+			if (Other.Count > 0) InfoPrep.Append(" " + Other.Count + " other edit" + (Other.Count == 1 ? "" : "s") + ",");
 
 			InfoPrep.Length--;
 			InfoPrep.Append(".");

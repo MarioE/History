@@ -6,8 +6,8 @@ using TShockAPI;
 
 namespace History.Commands
 {
-    public abstract class HCommand
-    {
+	public abstract class HCommand
+	{
 		protected TSPlayer sender;
 
 		public HCommand(TSPlayer sender)
@@ -22,6 +22,6 @@ namespace History.Commands
 				sender.SendErrorMessage(msg);
 			}
 		}
-        public abstract void Execute();
-    }
+		public abstract void Execute();
+	}
 }
