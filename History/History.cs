@@ -13,6 +13,8 @@ using History.Commands;
 using Mono.Data.Sqlite;
 using MySql.Data.MySqlClient;
 using Terraria;
+using Terraria.DataStructures;
+using Terraria.GameContent.Tile_Entities;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.DB;
@@ -144,7 +146,6 @@ namespace History
 				case 85: //tombstone
 				case 103:
 				case 104://grandfather
-				case 105://statues
 				case 128: //manniquin (orient)
 				case 132://lever (state)
 				case 134:
@@ -157,6 +158,7 @@ namespace History
 				case 376: //fishing crates
 				case 378: //target dummy
 				case 386: //trapdoor open
+				case 395:
 				case 410: //lunar monolith
 				case 411: //Detonator
 				case 425: // Announcement (Sign)
@@ -265,9 +267,12 @@ namespace History
 					which = 1;
 					div = 94;
 					break;
-				case 92: //lamppost
+				case 92: // lamp post
 					which = 1;
 					div = 108;
+					break;
+				case 105: // Statues
+					which = 3;
 					break;
 				default:
 					break;
@@ -392,6 +397,7 @@ namespace History
 				case 441:// (1,1)
 					dest = new Vector2(1, 1);
 					break;
+				case 105:// Statues use (0,2) from PlaceTile, but (1,2) from PlaceObject, strange
 				case 106:
 				case 209:
 				case 212:
@@ -429,7 +435,6 @@ namespace History
 				case 10:
 				case 11: // Door, Ignore framex*18 for 10, not 11
 				case 93:
-				case 105:
 				case 128:
 				case 269:
 				case 320:
@@ -706,6 +711,10 @@ namespace History
 					relx = (frameX % div) / 18;
 					rely = (frameY % div) / 18;
 					break;
+				case 3: // Statues have style split, possibly more use this?
+					rely = (frameY % 54) / 18;
+					relx = (frameX % 36) / 18;
+					break;
 				default:
 					relx = (frameX) / 18;
 					rely = (frameY) / 18;
@@ -780,6 +789,9 @@ namespace History
 					break;
 				case 2:
 					style = (byte)((tile.frameY / div) * 36 + (tile.frameX / div));
+					break;
+				case 3: //Just statues for now
+					style = (byte)((tile.frameX / 36) + (tile.frameY / 54) * 55);
 					break;
 				default:
 					break;
@@ -1121,8 +1133,13 @@ namespace History
 								short prefix = (short)(Main.tile[X, Y].frameX % 5000);
 								int netID = (Main.tile[X - 1, Y].frameX % 5000) - 100;
 								if (netID < 0) break;
-								Queue(account, X, Y, 0, 334, paint: prefix, alternate: netID, direction: Main.tile[X - 1, Y].frameX > 20000);
+								Queue(account, X, Y, 0, 334, paint: (short)(Main.tile[X, Y].color()), random: prefix, alternate: netID, direction: Main.tile[X - 1, Y].frameX > 20000);
 								return;
+							//case 395:
+								//TEItemFrame tEItemFrame = (TEItemFrame)TileEntity.ByPosition[new Point16(X, Y)];
+								//Console.WriteLine(tEItemFrame.ToString());
+								//Queue(account, X, Y, 0, 395, paint: (short)(Main.tile[X, Y].color()), random: tEItemFrame.item.prefix, alternate: tEItemFrame.item.type);
+								//return;
 							default:
 								if (Main.tileSolid[tileType])
 								{

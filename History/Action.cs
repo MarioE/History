@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Text;
 using Terraria;
+using Terraria.DataStructures;
+using Terraria.GameContent.Tile_Entities;
 using TShockAPI;
 
 namespace History
@@ -197,9 +199,10 @@ namespace History
 
 					bool success = false;
 
-					success = WorldGen.PlaceTile(x, y, data, false, true, 0, style: style);
-					if (!success)
-						success = WorldGen.PlaceObject(x, y, data, false, style: style, alternate: alt, random: random, direction: direction ? 1 : -1);
+					if (Terraria.ObjectData.TileObjectData.CustomPlace(data, style) && data != 82)
+						WorldGen.PlaceObject(x, y, data, false, style: style, alternate: alt, random: random, direction: direction ? 1 : -1);
+					else
+						WorldGen.PlaceTile(x, y, data, false, true, -1, style: style);
 
 					History.paintFurniture(data, x, y, (byte)(paint & 127));
 
@@ -224,16 +227,31 @@ namespace History
 						if (signI >= 0)
 							Sign.TextSign(signI, text);
 					}
-					//Restore Weapon Rack if it had a netID
+					// Restore Weapon Rack if it had a netID
 					if (data == 334 && alt > 0)
 					{
 						int mask = 5000;// +(direction ? 15000 : 0); // Direction is saved but PlaceTile doesn't use it
 						Main.tile[x-1, y].frameX = (short)(alt + mask + 100);
-						Main.tile[x, y].frameX = (short)(paint + mask + 5000);
+						Main.tile[x, y].frameX = (short)(random + mask + 5000);
+					}
+					// Restore Item Frame
+					if (data == 395)
+					{
+						/* Currently not accessible because of ServerAPI
+						int frameID = TEItemFrame.Place(x,y);
+						TEItemFrame frame = (TEItemFrame)TileEntity.ByID[frameID];
+						frame.item.netDefaults(alt);
+						frame.item.Prefix(random);
+						frame.item.stack = 1;
+						NetMessage.SendData(86, -1, -1, "", frameID, (float)x, (float)y, 0f, 0, 0, 0);
+						*/
 					}
 					//Send larger area for furniture
 					if (Main.tileFrameImportant[data])
-						TSPlayer.All.SendTileSquare(x, y, 8);//This can be very large, or too small in some cases
+						if (data==104)
+							TSPlayer.All.SendTileSquare(x, y-2, 8);
+						else
+							TSPlayer.All.SendTileSquare(x, y, 8);//This can be very large, or too small in some cases
 					else
 						TSPlayer.All.SendTileSquare(x, y, 1);
 					break;
