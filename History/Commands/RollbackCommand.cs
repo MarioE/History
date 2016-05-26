@@ -54,7 +54,7 @@ namespace History.Commands
 						x = reader.Get<int>("XY") >> 16,
 						y = reader.Get<int>("XY") & 0xffff,
 						text = reader.Get<string>("Text"),
-						alt = (byte)reader.Get<int>("Alternate"),
+						alt = reader.Get<int>("Alternate"),
 						random = (sbyte)reader.Get<int>("Random"),
 						direction = reader.Get<int>("Direction") == 1 ? true : false
 					});

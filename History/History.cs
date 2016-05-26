@@ -79,7 +79,7 @@ namespace History
 				CommandQueue.Add(new SaveCommand(Actions.ToArray()));
 				Actions.Clear();
 			}
-			Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y, paint = paint, style = style, text = text, alt = (byte)alternate, direction = direction, random = (sbyte)random });
+			Actions.Add(new Action { account = account, action = action, data = data, time = (int)(DateTime.UtcNow - Date).TotalSeconds, x = X, y = Y, paint = paint, style = style, text = text, alt = alternate, direction = direction, random = (sbyte)random });
 		}
 		// 334 weapon rack done? weapon styles?
 		static void getPlaceData(ushort type, ref int which, ref int div)
@@ -248,7 +248,6 @@ namespace History
 					div = 54;
 					break;
 				case 240: //3x3 painting, style stored in both
-				case 334:
 				case 440:
 					which = 2;
 					div = 54;
@@ -274,6 +273,7 @@ namespace History
 					break;
 			}
 		}
+		//This returns where the furniture is expected to be placed for worldgen
 		static Vector2 destFrame(ushort type)
 		{
 			Vector2 dest;
@@ -678,6 +678,7 @@ namespace History
 			}
 			return dim;
 		}
+		//This finds the 0,0 of a furniture
 		static Vector2 adjustDest(ref Vector2 dest, Tile tile, int which, int div, byte style)
 		{
 			Vector2 relative = new Vector2(0, 0);
@@ -748,13 +749,24 @@ namespace History
 			{
 				dest.Y--;
 			}
+			else if (tile.type == 334)
+			{
+				rely = frameY / 18;
+				int tx = frameX;
+				if (frameX > 5000)
+					tx = ((frameX / 5000) - 1) * 18;
+				if (tx >= 54)
+					tx = (tx - 54);
+				relx = tx / 18;
+			}
 			relative = new Vector2(relx, rely);
 
 			return relative;
 		}
+		//This takes a coordinate on top of a furniture and returns the correct "placement" location it would have used.
 		static void adjustFurniture(ref int x, ref int y, ref byte style, bool origin = false)
 		{
-			int which = 10;
+			int which = 10; // An invalid which, to skip cases if it never changes.
 			int div = 1;
 			Tile tile = Main.tile[x, y];
 			getPlaceData(tile.type, ref which, ref div);
@@ -1103,6 +1115,13 @@ namespace History
 											Queue(account, X + i, Y + j, 0, 314, (byte)(Main.tile[X + i, Y + j].frameX + 1), (short)(Main.tile[X + i, Y + j].color() + ((Main.tile[X + i, Y + j].frameY + 1) << 8)));
 										}
 									}
+								return;
+							case 334: //Weapon Racks
+								//X and Y are already normalized to the center, Center is item prefix, X-1 is NetID
+								short prefix = (short)(Main.tile[X, Y].frameX % 5000);
+								int netID = (Main.tile[X - 1, Y].frameX % 5000) - 100;
+								if (netID < 0) break;
+								Queue(account, X, Y, 0, 334, paint: prefix, alternate: netID, direction: Main.tile[X - 1, Y].frameX > 20000);
 								return;
 							default:
 								if (Main.tileSolid[tileType])

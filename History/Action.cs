@@ -16,7 +16,7 @@ namespace History
 		public int x;
 		public int y;
 		public string text;
-		public byte alt;
+		public int alt;
 		public sbyte random;
 		public bool direction;
 
@@ -218,11 +218,18 @@ namespace History
 						Main.tile[x, y].slope((byte)(paint >> 8));
 
 					//restore sign text
-					if (data == 55 || data == 85)
+					if (data == 55 || data == 85 || data == 425)
 					{
 						int signI = Sign.ReadSign(x, y);
 						if (signI >= 0)
 							Sign.TextSign(signI, text);
+					}
+					//Restore Weapon Rack if it had a netID
+					if (data == 334 && alt > 0)
+					{
+						int mask = 5000;// +(direction ? 15000 : 0); // Direction is saved but PlaceTile doesn't use it
+						Main.tile[x-1, y].frameX = (short)(alt + mask + 100);
+						Main.tile[x, y].frameX = (short)(paint + mask + 5000);
 					}
 					//Send larger area for furniture
 					if (Main.tileFrameImportant[data])
