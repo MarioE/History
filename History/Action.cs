@@ -19,7 +19,7 @@ namespace History
 		public int y;
 		public string text;
 		public int alt;
-		public sbyte random;
+		public int random;
 		public bool direction;
 
 		public void Reenact()
@@ -227,15 +227,23 @@ namespace History
 						if (signI >= 0)
 							Sign.TextSign(signI, text);
 					}
-					// Restore Weapon Rack if it had a netID
-					if (data == 334 && alt > 0)
+					//Mannequins
+					else if (data == 128 || data == 269)
 					{
-						int mask = 5000;// +(direction ? 15000 : 0); // Direction is saved but PlaceTile doesn't use it
-						Main.tile[x-1, y].frameX = (short)(alt + mask + 100);
+						//x,y should be bottom left, Direction is already done via PlaceObject so we add the item values.
+						Main.tile[x, y - 2].frameX += (short)(paint * 100);
+						Main.tile[x, y - 1].frameX += (short)((alt&0x3FF) * 100);
+						Main.tile[x, y].frameX += (short)((alt>>10) * 100);
+					}
+					// Restore Weapon Rack if it had a netID
+					else if (data == 334 && alt > 0)
+					{
+						int mask = 5000;// +(direction ? 15000 : 0);
+						Main.tile[x - 1, y].frameX = (short)(alt + mask + 100);
 						Main.tile[x, y].frameX = (short)(random + mask + 5000);
 					}
 					// Restore Item Frame
-					if (data == 395)
+					else if (data == 395)
 					{
 						/* Currently not accessible because of ServerAPI
 						int frameID = TEItemFrame.Place(x,y);
@@ -248,8 +256,8 @@ namespace History
 					}
 					//Send larger area for furniture
 					if (Main.tileFrameImportant[data])
-						if (data==104)
-							TSPlayer.All.SendTileSquare(x, y-2, 8);
+						if (data == 104)
+							TSPlayer.All.SendTileSquare(x, y - 2, 8);
 						else
 							TSPlayer.All.SendTileSquare(x, y, 8);//This can be very large, or too small in some cases
 					else

@@ -139,22 +139,22 @@ namespace History
 					break;
 				case 16: //anvil
 				case 18: //work bench
-				case 21://chest
+				case 21: //chest
 				case 27: //sunflower (randomness)
 				case 29:
-				case 55:// sign
+				case 55: // sign
 				case 85: //tombstone
 				case 103:
-				case 104://grandfather
-				case 128: //manniquin (orient)
-				case 132://lever (state)
+				case 104: //grandfather
+				case 128: // mannequin (orient)
+				case 132: //lever (state)
 				case 134:
-				case 207:// water fountains
+				case 207: // water fountains
 				case 245: //2x3 wall picture
 				case 254:
-				case 269:
-				case 320://more statues
-				case 337://     statues
+				case 269: // womannequin
+				case 320: //more statues
+				case 337: //     statues
 				case 376: //fishing crates
 				case 378: //target dummy
 				case 386: //trapdoor open
@@ -697,6 +697,9 @@ namespace History
 			int frameY = tile.frameY;
 			int relx = 0;
 			int rely = 0;
+			//Remove data from Mannequins before adjusting
+			if (tile.type == 128 || tile.type == 269)
+				frameX %= 100;
 			switch (which)
 			{
 				case 0:
@@ -1045,8 +1048,8 @@ namespace History
 						//TODO: Sand falling from a solid tile broken below
 						switch (tileType)
 						{
-							case 10://doors don't break anything anyway
-							case 11://close open doors
+							case 10: //doors don't break anything anyway
+							case 11: //close open doors
 								tileType = 10;
 								break;
 							case 55: //Signs
@@ -1055,13 +1058,21 @@ namespace History
 								int signI = Sign.ReadSign(X, Y);
 								Queue(account, X, Y, 0, tileType, pStyle, (short)(Main.tile[X, Y].color()), text: Main.sign[signI].text);
 								return;
-							case 124://wooden beam, breaks sides only
+							case 124: //wooden beam, breaks sides only
 								if (Main.tile[X - 1, Y].active() && breakableSides[Main.tile[X - 1, Y].type])
 									logEdit(0, Main.tile[X - 1, Y], X - 1, Y, 0, account, done);
 								if (Main.tile[X + 1, Y].active() && breakableSides[Main.tile[X + 1, Y].type])
 									logEdit(0, Main.tile[X + 1, Y], X + 1, Y, 0, account, done);
 								break;
-							case 138://boulder, 2x2
+							case 128:
+							case 269: //Mannequins
+								int headSlot = Main.tile[X, Y - 2].frameX / 100;
+								int bodySlot = Main.tile[X, Y - 1].frameX / 100;
+								int legSlot = Main.tile[X, Y].frameX / 100;
+								// The vars 'style' and 'random' cause mannequins to place improperly and can't be used.
+								Queue(account, X, Y, 0, tileType, paint: (short)headSlot, alternate: bodySlot + (legSlot<<10), direction: (Main.tile[X, Y].frameX % 100) > 0);
+								return;
+							case 138: //boulder, 2x2
 								for (int i = -1; i <= 0; i++)
 									if (Main.tile[X + i, Y - 2].active() && breakableBottom[Main.tile[X + i, Y - 2].type])
 										logEdit(0, Main.tile[X + i, Y - 2], X + i, Y - 2, 0, account, done);
@@ -1073,7 +1084,7 @@ namespace History
 										logEdit(0, Main.tile[X, Y + i], X, Y + i, 0, account, done);
 								}
 								break;
-							case 235://teleporter, 3x1
+							case 235: //teleporter, 3x1
 								for (int i = -1; i <= 1; i++)
 									if (Main.tile[X + i, Y - 1].active() && breakableBottom[Main.tile[X + i, Y - 1].type])
 										logEdit(0, Main.tile[X + i, Y - 1], X + i, Y - 1, 0, account, done);
@@ -1099,7 +1110,7 @@ namespace History
 								// making a workaround for that just yet.
 								topY++;
 								return;
-							case 239://bars
+							case 239: //bars
 								topY = Y;//Find top of stack
 								while (topY >= 0 && Main.tile[X, topY].active() && Main.tile[X, topY].type == 239)
 									topY--;
@@ -1133,13 +1144,13 @@ namespace History
 								short prefix = (short)(Main.tile[X, Y].frameX % 5000);
 								int netID = (Main.tile[X - 1, Y].frameX % 5000) - 100;
 								if (netID < 0) break;
-								Queue(account, X, Y, 0, 334, paint: (short)(Main.tile[X, Y].color()), random: prefix, alternate: netID, direction: Main.tile[X - 1, Y].frameX > 20000);
+								Queue(account, X, Y, 0, 334, paint: (short)(Main.tile[X, Y].color()), random: prefix, alternate: netID, direction: Main.tile[X, Y + 1].frameX > 54);
 								return;
-							//case 395:
-								//TEItemFrame tEItemFrame = (TEItemFrame)TileEntity.ByPosition[new Point16(X, Y)];
-								//Console.WriteLine(tEItemFrame.ToString());
-								//Queue(account, X, Y, 0, 395, paint: (short)(Main.tile[X, Y].color()), random: tEItemFrame.item.prefix, alternate: tEItemFrame.item.type);
-								//return;
+							//case 395: //Item Frame
+							//TEItemFrame tEItemFrame = (TEItemFrame)TileEntity.ByPosition[new Point16(X, Y)];
+							//Console.WriteLine(tEItemFrame.ToString());
+							//Queue(account, X, Y, 0, 395, paint: (short)(Main.tile[X, Y].color()), random: tEItemFrame.item.prefix, alternate: tEItemFrame.item.type);
+							//return;
 							default:
 								if (Main.tileSolid[tileType])
 								{
