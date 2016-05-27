@@ -1144,7 +1144,7 @@ namespace History
 								short prefix = (short)(Main.tile[X, Y].frameX % 5000);
 								int netID = (Main.tile[X - 1, Y].frameX % 5000) - 100;
 								if (netID < 0) break;
-								Queue(account, X, Y, 0, 334, paint: (short)(Main.tile[X, Y].color()), random: prefix, alternate: netID, direction: Main.tile[X, Y + 1].frameX > 54);
+								Queue(account, X, Y, 0, 334, paint: prefix, alternate: netID, direction: Main.tile[X, Y + 1].frameX > 54);
 								return;
 							//case 395: //Item Frame
 							//TEItemFrame tEItemFrame = (TEItemFrame)TileEntity.ByPosition[new Point16(X, Y)];

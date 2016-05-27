@@ -232,15 +232,15 @@ namespace History
 					{
 						//x,y should be bottom left, Direction is already done via PlaceObject so we add the item values.
 						Main.tile[x, y - 2].frameX += (short)(paint * 100);
-						Main.tile[x, y - 1].frameX += (short)((alt&0x3FF) * 100);
-						Main.tile[x, y].frameX += (short)((alt>>10) * 100);
+						Main.tile[x, y - 1].frameX += (short)((alt & 0x3FF) * 100);
+						Main.tile[x, y].frameX += (short)((alt >> 10) * 100);
 					}
 					// Restore Weapon Rack if it had a netID
 					else if (data == 334 && alt > 0)
 					{
 						int mask = 5000;// +(direction ? 15000 : 0);
 						Main.tile[x - 1, y].frameX = (short)(alt + mask + 100);
-						Main.tile[x, y].frameX = (short)(random + mask + 5000);
+						Main.tile[x, y].frameX = (short)(paint + mask + 5000);
 					}
 					// Restore Item Frame
 					else if (data == 395)
