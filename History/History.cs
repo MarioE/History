@@ -53,7 +53,7 @@ namespace History
 		public History(Main game)
 			: base(game)
 		{
-			Order = 50;
+			Order = -1;
 		}
 
 		protected override void Dispose(bool disposing)
@@ -974,6 +974,7 @@ namespace History
 			breakableBottom[392] = true;
 			breakableBottom[393] = true;
 			breakableBottom[394] = true;
+			breakableBottom[395] = true;
 			breakableBottom[405] = true;
 			breakableBottom[406] = true;
 			breakableBottom[410] = true;
@@ -1000,6 +1001,7 @@ namespace History
 			breakableTop[380] = true;
 			breakableTop[388] = true;
 			breakableTop[389] = true;
+			breakableTop[395] = true;
 			breakableTop[425] = true;
 			breakableTop[443] = true;
 
@@ -1011,6 +1013,7 @@ namespace History
 			breakableSides[380] = true;
 			breakableSides[386] = true;
 			breakableSides[387] = true;
+			breakableSides[395] = true;
 			breakableSides[425] = true;
 
 			breakableWall[4] = true;
@@ -1025,10 +1028,6 @@ namespace History
 			breakableWall[380] = true;
 			breakableWall[395] = true;
 			breakableWall[440] = true;
-		}
-		bool regionCheck(TSPlayer who, int x, int y)
-		{
-			return who.Group.HasPermission(Permissions.editregion) || TShock.Regions.CanBuild(x, y, who);
 		}
 		void logEdit(byte etype, Tile tile, int X, int Y, ushort type, string account, List<Vector2> done, byte style = 0, int alt = 0, int random = -1, bool direction = false)
 		{
@@ -1070,7 +1069,7 @@ namespace History
 								int bodySlot = Main.tile[X, Y - 1].frameX / 100;
 								int legSlot = Main.tile[X, Y].frameX / 100;
 								// The vars 'style' and 'random' cause mannequins to place improperly and can't be used.
-								Queue(account, X, Y, 0, tileType, paint: (short)headSlot, alternate: bodySlot + (legSlot<<10), direction: (Main.tile[X, Y].frameX % 100) > 0);
+								Queue(account, X, Y, 0, tileType, paint: (short)headSlot, alternate: bodySlot + (legSlot << 10), direction: (Main.tile[X, Y].frameX % 100) > 0);
 								return;
 							case 138: //boulder, 2x2
 								for (int i = -1; i <= 0; i++)
@@ -1146,11 +1145,16 @@ namespace History
 								if (netID < 0) break;
 								Queue(account, X, Y, 0, 334, paint: prefix, alternate: netID, direction: Main.tile[X, Y + 1].frameX > 54);
 								return;
-							//case 395: //Item Frame
-							//TEItemFrame tEItemFrame = (TEItemFrame)TileEntity.ByPosition[new Point16(X, Y)];
-							//Console.WriteLine(tEItemFrame.ToString());
-							//Queue(account, X, Y, 0, 395, paint: (short)(Main.tile[X, Y].color()), random: tEItemFrame.item.prefix, alternate: tEItemFrame.item.type);
-							//return;
+							case 395: //Item Frame, These are still disabled in History because of some serious TShock/Vanilla issues preventing proper logging at the moment.
+								/*TileEntity TE;
+								if (TileEntity.ByPosition.TryGetValue(new Point16(X, Y), out TE))
+								{
+									TEItemFrame tEItemFrame = (TEItemFrame)TE;
+									Console.WriteLine(tEItemFrame.ToString());
+									Queue(account, X, Y, 0, 395, paint: (short)(Main.tile[X, Y].color()), random: tEItemFrame.item.prefix, alternate: tEItemFrame.item.netID);
+									return;
+								}*/
+								break;
 							default:
 								if (Main.tileSolid[tileType])
 								{
@@ -1297,6 +1301,7 @@ namespace History
 		{
 			if (!e.Handled)
 			{
+
 				switch (e.MsgID)
 				{
 					case PacketTypes.PlaceItemFrame:
@@ -1324,28 +1329,28 @@ namespace History
 							}
 							//DEBUG
 							//TSPlayer.All.SendInfoMessage($"Type: {type}");
-							if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
+
+							TSPlayer ply = TShock.Players[e.Msg.whoAmI];
+							string logName = ply.User == null ? "unregistered" : ply.User.Name;
+							//Checking history now requires build permission in the area due to load order, if needed this could be fixed by having an alternate function check this packet on a higher order.
+							if (AwaitingHistory[e.Msg.whoAmI])
 							{
-								if (AwaitingHistory[e.Msg.whoAmI])
-								{
-									AwaitingHistory[e.Msg.whoAmI] = false;
-									TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-									//DEBUG
-									//TSPlayer.All.SendInfoMessage($"X: {X}, Y: {Y}, FrameX: {Main.tile[X, Y].frameX}, FrameY: {Main.tile[X, Y].frameY}");
-									e.Handled = true;
-									//END DEBUG
-									if (type == 0 && (etype == 0 || etype == 4))
-										adjustFurniture(ref X, ref Y, ref style);
-									CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-									e.Handled = true;
-								}
-								else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-								{
-									//effect only
-									if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
-										return;
-									logEdit(etype, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].User.Name, new List<Vector2>(), style);
-								}
+								AwaitingHistory[e.Msg.whoAmI] = false;
+								ply.SendTileSquare(X, Y, 5);
+								//DEBUG
+								//TSPlayer.All.SendInfoMessage($"X: {X}, Y: {Y}, FrameX: {Main.tile[X, Y].frameX}, FrameY: {Main.tile[X, Y].frameY}");
+								//END DEBUG
+								if (type == 0 && (etype == 0 || etype == 4))
+									adjustFurniture(ref X, ref Y, ref style);
+								CommandQueue.Add(new HistoryCommand(X, Y, ply));
+								e.Handled = true;
+							}
+							else
+							{
+								//effect only
+								if (type == 1 && (etype == 0 || etype == 2 || etype == 4))
+									return;
+								logEdit(etype, Main.tile[X, Y], X, Y, type, logName, new List<Vector2>(), style);
 							}
 						}
 						break;
@@ -1362,19 +1367,20 @@ namespace History
 							int rand = (sbyte)e.Msg.readBuffer[e.Index + 9];
 							//TSPlayer.All.SendInfoMessage($"Random: {rand}");
 							bool dir = BitConverter.ToBoolean(e.Msg.readBuffer, e.Index + 10);
-							if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
+
+							TSPlayer ply = TShock.Players[e.Msg.whoAmI];
+							string logName = ply.User == null ? "unregistered" : ply.User.Name;
+							//Checking history now requires build permission in the area due to load order, if needed this could be fixed by having an alternate function check this packet on a higher order.
+							if (AwaitingHistory[e.Msg.whoAmI])
 							{
-								if (AwaitingHistory[e.Msg.whoAmI])
-								{
-									AwaitingHistory[e.Msg.whoAmI] = false;
-									TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-									CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-									e.Handled = true;
-								}
-								else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-								{
-									logEdit(1, Main.tile[X, Y], X, Y, type, TShock.Players[e.Msg.whoAmI].User.Name, new List<Vector2>(), (byte)style, alt, rand, dir);
-								}
+								AwaitingHistory[e.Msg.whoAmI] = false;
+								ply.SendTileSquare(X, Y, 5);
+								CommandQueue.Add(new HistoryCommand(X, Y, ply));
+								e.Handled = true;
+							}
+							else
+							{
+								logEdit(1, Main.tile[X, Y], X, Y, type, logName, new List<Vector2>(), (byte)style, alt, rand, dir);
 							}
 						}
 						break;
@@ -1386,73 +1392,71 @@ namespace History
 							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 3);
 							int style = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 5);
 							byte style2 = (byte)style;
-							if (X >= 0 && Y >= 0 && X < Main.maxTilesX && Y < Main.maxTilesY)
+							TSPlayer ply = TShock.Players[e.Msg.whoAmI];
+							string logName = ply.User == null ? "unregistered" : ply.User.Name;
+							//PlaceChest
+							if (flag == 0)
 							{
-								//PlaceChest
-								if (flag == 0 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
+								if (AwaitingHistory[e.Msg.whoAmI])
 								{
-									if (AwaitingHistory[e.Msg.whoAmI])
-									{
-										AwaitingHistory[e.Msg.whoAmI] = false;
-										TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-										CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-										e.Handled = true;
-									}
-									else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-									{
-										logEdit(1, Main.tile[X, Y], X, Y, 21, TShock.Players[e.Msg.whoAmI].User.Name, new List<Vector2>(), style2);
-									}
-									return;
+									AwaitingHistory[e.Msg.whoAmI] = false;
+									ply.SendTileSquare(X, Y, 5);
+									CommandQueue.Add(new HistoryCommand(X, Y, ply));
+									e.Handled = true;
 								}
-								//KillChest
-								if (flag == 1 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y) && Main.tile[X, Y].type == 21)
+								else
 								{
-									if (AwaitingHistory[e.Msg.whoAmI])
-									{
-										AwaitingHistory[e.Msg.whoAmI] = false;
-										TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-										adjustFurniture(ref X, ref Y, ref style2);
-										CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-										e.Handled = true;
-										return;
-									}
+									logEdit(1, Main.tile[X, Y], X, Y, 21, logName, new List<Vector2>(), style2);
+								}
+								return;
+							}
+							//KillChest
+							if (flag == 1 && Main.tile[X, Y].type == 21)
+							{
+								if (AwaitingHistory[e.Msg.whoAmI])
+								{
+									AwaitingHistory[e.Msg.whoAmI] = false;
+									ply.SendTileSquare(X, Y, 5);
 									adjustFurniture(ref X, ref Y, ref style2);
-									Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 0, Main.tile[X, Y].type, style2, Main.tile[X, Y].color());
+									CommandQueue.Add(new HistoryCommand(X, Y, ply));
+									e.Handled = true;
 									return;
 								}
-								//PlaceDresser
-								if (flag == 2 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
+								adjustFurniture(ref X, ref Y, ref style2);
+								Queue(logName, X, Y, 0, Main.tile[X, Y].type, style2, Main.tile[X, Y].color());
+								return;
+							}
+							//PlaceDresser
+							if (flag == 2)
+							{
+								if (AwaitingHistory[e.Msg.whoAmI])
 								{
-									if (AwaitingHistory[e.Msg.whoAmI])
-									{
-										AwaitingHistory[e.Msg.whoAmI] = false;
-										TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-										CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-										e.Handled = true;
-									}
-									else if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-									{
-										logEdit(1, Main.tile[X, Y], X, Y, 88, TShock.Players[e.Msg.whoAmI].User.Name, new List<Vector2>(), style2);
-									}
-									return;
+									AwaitingHistory[e.Msg.whoAmI] = false;
+									ply.SendTileSquare(X, Y, 5);
+									CommandQueue.Add(new HistoryCommand(X, Y, ply));
+									e.Handled = true;
 								}
-								//KillDresser
-								if (flag == 3 && regionCheck(TShock.Players[e.Msg.whoAmI], X, Y) && Main.tile[X, Y].type == 88)
+								else
 								{
-									if (AwaitingHistory[e.Msg.whoAmI])
-									{
-										AwaitingHistory[e.Msg.whoAmI] = false;
-										TShock.Players[e.Msg.whoAmI].SendTileSquare(X, Y, 5);
-										adjustFurniture(ref X, ref Y, ref style2);
-										CommandQueue.Add(new HistoryCommand(X, Y, TShock.Players[e.Msg.whoAmI]));
-										e.Handled = true;
-										return;
-									}
+									logEdit(1, Main.tile[X, Y], X, Y, 88, logName, new List<Vector2>(), style2);
+								}
+								return;
+							}
+							//KillDresser
+							if (flag == 3 && Main.tile[X, Y].type == 88)
+							{
+								if (AwaitingHistory[e.Msg.whoAmI])
+								{
+									AwaitingHistory[e.Msg.whoAmI] = false;
+									ply.SendTileSquare(X, Y, 5);
 									adjustFurniture(ref X, ref Y, ref style2);
-									Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 0, Main.tile[X, Y].type, style2, Main.tile[X, Y].color());
+									CommandQueue.Add(new HistoryCommand(X, Y, ply));
+									e.Handled = true;
 									return;
 								}
-
+								adjustFurniture(ref X, ref Y, ref style2);
+								Queue(logName, X, Y, 0, Main.tile[X, Y].type, style2, Main.tile[X, Y].color());
+								return;
 							}
 						}
 						break;
@@ -1461,10 +1465,9 @@ namespace History
 							int X = BitConverter.ToInt16(e.Msg.readBuffer, e.Index);
 							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 2);
 							byte color = e.Msg.readBuffer[e.Index + 4];
-							if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-							{
-								Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 25, color, 0, Main.tile[X, Y].color());
-							}
+
+							string logName = TShock.Players[e.Msg.whoAmI].User == null ? "unregistered" : TShock.Players[e.Msg.whoAmI].User.Name;
+							Queue(logName, X, Y, 25, color, 0, Main.tile[X, Y].color());
 						}
 						break;
 					case PacketTypes.PaintWall:
@@ -1472,10 +1475,9 @@ namespace History
 							int X = BitConverter.ToInt16(e.Msg.readBuffer, e.Index);
 							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 2);
 							byte color = e.Msg.readBuffer[e.Index + 4];
-							if (regionCheck(TShock.Players[e.Msg.whoAmI], X, Y))
-							{
-								Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 26, color, 0, Main.tile[X, Y].wallColor());
-							}
+
+							string logName = TShock.Players[e.Msg.whoAmI].User == null ? "unregistered" : TShock.Players[e.Msg.whoAmI].User.Name;
+							Queue(logName, X, Y, 26, color, 0, Main.tile[X, Y].wallColor());
 						}
 						break;
 					case PacketTypes.SignNew:
@@ -1485,7 +1487,8 @@ namespace History
 							int Y = BitConverter.ToInt16(e.Msg.readBuffer, e.Index + 4);
 							byte s = 0;
 							adjustFurniture(ref X, ref Y, ref s); //Adjust coords so history picks it up, readSign() adjusts back to origin anyway
-							Queue(TShock.Players[e.Msg.whoAmI].User.Name, X, Y, 27, data: signI, text: Main.sign[signI].text);
+							string logName = TShock.Players[e.Msg.whoAmI].User == null ? "unregistered" : TShock.Players[e.Msg.whoAmI].User.Name;
+							Queue(logName, X, Y, 27, data: signI, text: Main.sign[signI].text);
 						}
 						break;
 					case PacketTypes.MassWireOperation:
@@ -1498,6 +1501,8 @@ namespace History
 							//Modes Red=1, Green=2, Blue=4, Yellow=8, Actuator=16, Cutter=32
 
 							bool direction = Main.player[e.Msg.whoAmI].direction == 1;
+							TSPlayer ply = TShock.Players[e.Msg.whoAmI];
+							string logName = ply.User == null ? "unregistered" : ply.User.Name;
 							int minX = X1, maxX = X2, minY = Y1, maxY = Y2;
 							int drawX = direction ? minX : maxX;
 							int drawY = direction ? maxY : minY;
@@ -1512,24 +1517,19 @@ namespace History
 								maxY = Y1;
 							}
 							int wires = 0, acts = 0;
+							//We count our own wires since the client may only be able to place a few or even none.
 							if ((toolMode & 32) == 0)
 								countPlayerWires(Main.player[e.Msg.whoAmI], ref wires, ref acts);
 
 							for (int starty = minY; starty <= maxY; starty++)
 							{
-								if (regionCheck(TShock.Players[e.Msg.whoAmI], drawX, starty))
-								{
-									logAdvancedWire(drawX, starty, toolMode, TShock.Players[e.Msg.whoAmI].User.Name, ref wires, ref acts);
-								}
+								logAdvancedWire(drawX, starty, toolMode, logName, ref wires, ref acts);
 							}
 							for (int startx = minX; startx <= maxX; startx++)
 							{
 								if (startx == drawX)
 									continue;
-								if (regionCheck(TShock.Players[e.Msg.whoAmI], startx, drawY))
-								{
-									logAdvancedWire(startx, drawY, toolMode, TShock.Players[e.Msg.whoAmI].User.Name, ref wires, ref acts);
-								}
+								logAdvancedWire(startx, drawY, toolMode, logName, ref wires, ref acts);
 							}
 						}
 						break;

@@ -192,7 +192,7 @@ namespace History
 					//maybe already repaired?
 					if (Main.tile[x, y].active() && Main.tile[x, y].type == data)
 					{
-						if (data == 314)
+						if (data == 314 || data == 395)
 							goto frameOnly;
 						break;
 					}
@@ -245,14 +245,19 @@ namespace History
 					// Restore Item Frame
 					else if (data == 395)
 					{
-						/* Currently not accessible because of ServerAPI
-						int frameID = TEItemFrame.Place(x,y);
-						TEItemFrame frame = (TEItemFrame)TileEntity.ByID[frameID];
-						frame.item.netDefaults(alt);
-						frame.item.Prefix(random);
-						frame.item.stack = 1;
-						NetMessage.SendData(86, -1, -1, "", frameID, (float)x, (float)y, 0f, 0, 0, 0);
-						*/
+						/*TileEntity TE;
+						// PlaceObject should already place a blank entity.
+						if (TileEntity.ByPosition.TryGetValue(new Point16(x, y), out TE))
+						{
+							Console.WriteLine("Frame had Entity, changing item.");
+							TEItemFrame frame = (TEItemFrame)TE;
+							frame.item.netDefaults(alt);
+							frame.item.Prefix(random);
+							frame.item.stack = 1;
+							NetMessage.SendData(86, -1, -1, "", frame.ID, (float)x, (float)y, 0f, 0, 0, 0);
+						}
+						else
+							Console.WriteLine("This Frame restore had no entity");*/
 					}
 					//Send larger area for furniture
 					if (Main.tileFrameImportant[data])
