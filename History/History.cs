@@ -1649,7 +1649,7 @@ namespace History
 				new SqlColumn("Style", MySqlDbType.Int32),
 				new SqlColumn("Paint", MySqlDbType.Int32),
 				new SqlColumn("WorldID", MySqlDbType.Int32),
-				new SqlColumn("Text", MySqlDbType.VarChar) { Length = 50 },
+				new SqlColumn("Text", MySqlDbType.VarChar) { Length = 500 },
 				new SqlColumn("Alternate", MySqlDbType.Int32),
 				new SqlColumn("Random", MySqlDbType.Int32),
 				new SqlColumn("Direction", MySqlDbType.Int32)));
