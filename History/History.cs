@@ -18,10 +18,11 @@ using Terraria.GameContent.Tile_Entities;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.DB;
+using Microsoft.Xna.Framework;
 
 namespace History
 {
-	[ApiVersion(1, 23)]
+	[ApiVersion(2, 0)]
 	public class History : TerrariaPlugin
 	{
 		public static List<Action> Actions = new List<Action>(SaveCount);
@@ -32,7 +33,7 @@ namespace History
 		private bool[] AwaitingHistory = new bool[256];
 		public override string Author
 		{
-			get { return "Maintained by Cracker64 & Zaicon"; }
+			get { return "MarioE/Cracker65/Zaicon, updated by Ryozuki"; }
 		}
 		CancellationTokenSource Cancel = new CancellationTokenSource();
 		private BlockingCollection<HCommand> CommandQueue = new BlockingCollection<HCommand>();
@@ -684,7 +685,7 @@ namespace History
 			return dim;
 		}
 		//This finds the 0,0 of a furniture
-		static Vector2 adjustDest(ref Vector2 dest, Tile tile, int which, int div, byte style)
+		static Vector2 adjustDest(ref Vector2 dest, OTAPI.Tile.ITile tile, int which, int div, byte style)
 		{
 			Vector2 relative = new Vector2(0, 0);
 			if (dest.X < 0)
@@ -780,7 +781,7 @@ namespace History
 		{
 			int which = 10; // An invalid which, to skip cases if it never changes.
 			int div = 1;
-			Tile tile = Main.tile[x, y];
+			OTAPI.Tile.ITile tile = Main.tile[x, y];
 			getPlaceData(tile.type, ref which, ref div);
 			switch (which)
 			{
@@ -1029,7 +1030,7 @@ namespace History
 			breakableWall[395] = true;
 			breakableWall[440] = true;
 		}
-		void logEdit(byte etype, Tile tile, int X, int Y, ushort type, string account, List<Vector2> done, byte style = 0, int alt = 0, int random = -1, bool direction = false)
+		void logEdit(byte etype, OTAPI.Tile.ITile tile, int X, int Y, ushort type, string account, List<Vector2> done, byte style = 0, int alt = 0, int random = -1, bool direction = false)
 		{
 			switch (etype)
 			{

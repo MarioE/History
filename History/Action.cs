@@ -197,8 +197,6 @@ namespace History
 						break;
 					}
 
-					bool success = false;
-
 					if (Terraria.ObjectData.TileObjectData.CustomPlace(data, style) && data != 82)
 						WorldGen.PlaceObject(x, y, data, false, style: style, alternate: alt, random: random, direction: direction ? 1 : -1);
 					else

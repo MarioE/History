@@ -66,9 +66,7 @@ namespace History.Commands
 					account, rollbackTime, Main.worldID);
 			}
 			if (Main.rand == null)
-				Main.rand = new Random();
-			if (WorldGen.genRand == null)
-				WorldGen.genRand = new Random();
+				Main.rand = new Terraria.Utilities.UnifiedRandom();
 
 			for (int i = 0; i >= 0 && i < History.Actions.Count; i++)
 			{
